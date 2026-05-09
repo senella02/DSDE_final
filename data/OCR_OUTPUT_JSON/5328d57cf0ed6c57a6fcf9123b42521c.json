@@ -1,0 +1,105 @@
+[
+  {
+    "metadata": {
+      "file_id": "5328d57cf0ed6c57a6fcf9123b42521c",
+      "pdf_name": "อส.4ทับ7.pdf",
+      "processed_at": "2026-05-06T11:27:55.057143",
+      "total_pages": 1
+    },
+    "election_type": null,
+    "ballot_type": null,
+    "district": null,
+    "subdistrict": null,
+    "moo": null,
+    "station_number": null,
+    "eligible_voters": null,
+    "voter_turnout": null,
+    "total_ballots": null,
+    "valid_votes": null,
+    "void_ballots": null,
+    "spoiled_ballots": null,
+    "candidates": [
+      {
+        "number": 1,
+        "name": "สมเกียรติ ตันดิลกตระกูล",
+        "party": "เพื่อไทย",
+        "votes": null,
+        "withdrawn": false
+      },
+      {
+        "number": 2,
+        "name": "สุกิจ อ่อนขาว",
+        "party": "ประชาธิปัตย์",
+        "votes": null,
+        "withdrawn": false
+      },
+      {
+        "number": 3,
+        "name": NaN,
+        "party": NaN,
+        "votes": null,
+        "withdrawn": true
+      },
+      {
+        "number": 4,
+        "name": "กฤศวัฒน์ เลิศวิริยาภรณ์",
+        "party": "ประชาชน",
+        "votes": null,
+        "withdrawn": false
+      },
+      {
+        "number": 5,
+        "name": "ธนวัฒน์ ผาสุขมูล",
+        "party": "กล้าธรรม",
+        "votes": null,
+        "withdrawn": false
+      },
+      {
+        "number": 6,
+        "name": "วีระพงษ์ แดนพิมาย",
+        "party": "เศรษฐกิจ",
+        "votes": null,
+        "withdrawn": false
+      },
+      {
+        "number": 7,
+        "name": "ทวิรัฐ รัตนเศรษฐ",
+        "party": "ภูมิใจไทย",
+        "votes": null,
+        "withdrawn": false
+      },
+      {
+        "number": 8,
+        "name": "ชวัลลักษณ์ ทองสันเทียะ",
+        "party": "ไทยภักดี",
+        "votes": null,
+        "withdrawn": false
+      },
+      {
+        "number": 9,
+        "name": "พิมนกาลล์ ธีร์ก้านภูกลาง",
+        "party": "พลังประชารัฐ",
+        "votes": null,
+        "withdrawn": false
+      }
+    ],
+    "total_is_valid": false,
+    "validation_message": "total_ballots not found in header",
+    "candidate_sum_valid": false,
+    "candidate_sum_message": "valid_votes not available for comparison",
+    "failure_modes": [
+      "ocr_missed_candidates:[1, 2, 4, 5, 6, 7, 8, 9]"
+    ],
+    "pages": [
+      {
+        "page_no": 2,
+        "image_path": "/content/drive/MyDrive/DSDE_final_project/pipeline_output/images/5328d57cf0ed6c57a6fcf9123b42521c/p2.png",
+        "page_role": "continuation",
+        "ocr_latency_sec": null,
+        "failure_modes": [],
+        "error": "Traceback (most recent call last):\n  File \"/tmp/ipykernel_2911/186290557.py\", line 360, in process_image\n    raw_a, latency_a = run_ocr(image_path, PROMPT_A)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/ipykernel_2911/186290557.py\", line 25, in run_ocr\n    result  = ocr_document(pdf_or_image_path=str(image_path))\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/typhoon_ocr/ocr_utils.py\", line 700, in ocr_document\n    response = openai.chat.completions.create(\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/openai/_utils/_utils.py\", line 287, in wrapper\n    return func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/openai/resources/chat/completions/completions.py\", line 1211, in create\n    return self._post(\n           ^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/openai/_base_client.py\", line 1314, in post\n    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/openai/_base_client.py\", line 1087, in request\n    raise self._make_status_error_from_response(err.response) from None\nopenai.APIStatusError: Error code: 408 - {'detail': 'Request timed out: An error occurred during model processing'}\n",
+        "raw_ocr": null
+      }
+    ]
+  }
+]

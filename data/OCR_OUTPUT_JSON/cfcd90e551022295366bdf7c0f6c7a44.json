@@ -1,0 +1,588 @@
+[
+  {
+    "metadata": {
+      "file_id": "cfcd90e551022295366bdf7c0f6c7a44",
+      "pdf_name": "โตนด น.3.pdf",
+      "processed_at": "2026-05-06T14:09:45.342620",
+      "total_pages": 2
+    },
+    "election_type": "normal",
+    "ballot_type": "district",
+    "district": "โนนสูง",
+    "subdistrict": "โตนด",
+    "moo": 3,
+    "station_number": 3,
+    "eligible_voters": 760,
+    "voter_turnout": 529,
+    "total_ballots": null,
+    "valid_votes": 492,
+    "void_ballots": 19,
+    "spoiled_ballots": 18,
+    "candidates": [
+      {
+        "number": 1,
+        "name": "สมเกียรติ ตันดิลกตระกูล",
+        "party": "เพื่อไทย",
+        "votes": 240,
+        "withdrawn": false
+      },
+      {
+        "number": 2,
+        "name": "สุกิจ อ่อนขาว",
+        "party": "ประชาธิปัตย์",
+        "votes": 5,
+        "withdrawn": false
+      },
+      {
+        "number": 3,
+        "name": NaN,
+        "party": NaN,
+        "votes": null,
+        "withdrawn": true
+      },
+      {
+        "number": 4,
+        "name": "กฤศวัฒน์ เลิศวิริยาภรณ์",
+        "party": "ประชาชน",
+        "votes": 63,
+        "withdrawn": false
+      },
+      {
+        "number": 5,
+        "name": "ธนวัฒน์ ผาสุขมูล",
+        "party": "กล้าธรรม",
+        "votes": 1,
+        "withdrawn": false
+      },
+      {
+        "number": 6,
+        "name": "วีระพงษ์ แดนพิมาย",
+        "party": "เศรษฐกิจ",
+        "votes": 7,
+        "withdrawn": false
+      },
+      {
+        "number": 7,
+        "name": "ทวิรัฐ รัตนเศรษฐ",
+        "party": "ภูมิใจไทย",
+        "votes": 173,
+        "withdrawn": false
+      },
+      {
+        "number": 8,
+        "name": "ชวัลลักษณ์ ทองสันเทียะ",
+        "party": "ไทยภักดี",
+        "votes": 2,
+        "withdrawn": false
+      },
+      {
+        "number": 9,
+        "name": "พิมนกาลล์ ธีร์ก้านภูกลาง",
+        "party": "พลังประชารัฐ",
+        "votes": 1,
+        "withdrawn": false
+      }
+    ],
+    "total_is_valid": false,
+    "validation_message": "total_ballots not found in header",
+    "candidate_sum_valid": true,
+    "candidate_sum_message": "OK",
+    "failure_modes": [
+      "null_header_field:total_ballots"
+    ],
+    "pages": [
+      {
+        "page_no": 1,
+        "image_path": "/content/drive/MyDrive/DSDE_final_project/pipeline_output/images/cfcd90e551022295366bdf7c0f6c7a44/p1.png",
+        "page_role": "header",
+        "ocr_latency_sec": 8.66,
+        "failure_modes": [
+          "null_header_field:total_ballots"
+        ],
+        "error": null,
+        "raw_ocr": "ชุดที่ ๑ (สีขาว) ส่งให้คณะกรรมการการเลือกตั้งประจำเขตเลือกตั้ง\nชุดที่ ๒ (สีเขียว) ปิดประกาศหน้าที่เลือกตั้ง\nชุดที่ ๓ (สีชมพู) ใส่ในถุงวัสดุใสขึ้นนอก\n\nส.ส. ๕/๑๘\n\nรายงานผลการนับคะแนนสมาชิกสภาผู้แทนราษฎรแบบแบ่งเขตเลือกตั้ง\n๙.๓ 5/18 ถูกใจ\n\nตามที่ได้มีพระราชกฤษฎีกาให้มีการเลือกตั้งสมาชิกสภาผู้แทนราษฎร และคณะกรรมการการเลือกตั้ง ได้กำหนดให้วันที่ 8 เดือน กุมภาพันธ์ พ.ศ. 2569 เป็นวันเลือกตั้ง นั้น\nบัดนี้ คณะกรรมการประจำหน่วยเลือกตั้งได้ดำเนินการนับคะแนนสมาชิกสภาผู้แทนราษฎร แบบแบ่งเขตเลือกตั้งของหน่วยเลือกตั้งที่ 3 หมู่ที่ 3 ตำบล/แขวง/เทศบาล โตนด\nอำเภอ/เขต โนนสูง เขตเลือกตั้งที่ 5 จังหวัด นครราชสีมา เสร็จสิ้นเป็นที่เรียบร้อยแล้ว ดังนั้น จึงขอรายงานผลการนับคะแนนของหน่วยเลือกตั้งดังกล่าว ดังนี้\n๑. จำนวนผู้มีสิทธิเลือกตั้ง\n๑.๑ จำนวนผู้มีสิทธิเลือกตั้งตามบัญชีรายชื่อผู้มีสิทธิเลือกตั้ง 760 คน\n(เจ็ดร้อยหกสิบคน)\n๑.๒ จำนวนผู้มีสิทธิเลือกตั้งที่มาแสดงตน 529 คน ( ห้าร้อยยี่สิบเก้าคน )\n(เฉพาะวันเลือกตั้ง)\n๒. จำนวนบัตรเลือกตั้ง\n๒.๑ จำนวนบัตรเลือกตั้งที่ได้รับจัดสรร 760 / บัตร ( เจ็ดร้อยหกสิบบัตร )\n๒.๒ จำนวนบัตรเลือกตั้งที่ใช้ 529 / บัตร ( ห้าร้อยยี่สิบเก้าบัตร )\n๒.๒.๑ บัตรดี 492 บัตร ( สี่ร้อยเก้าสิบสองบัตร )\n๒.๒.๒ บัตรเสีย 19 บัตร ( ลิ้นเก้าบัตร )\n๒.๒.๓ บัตรที่ไม่เลือกผู้สมัครผู้ใด 18 บัตร ( ศิลป์แปดบัตร )\n๒.๓ จำนวนบัตรเลือกตั้งที่เหลือ 231 / บัตร (สองร้อยสามสี่ปลีดบัตร )\n๓. จำนวนคะแนนที่ผู้สมัครรับเลือกตั้งแต่ละคนได้รับเรียงตามลำดับหมายเลขประจำตัวผู้สมัคร\n\n<table><tr><td>หมายเลข ประจำตัว ผู้สมัคร</td><td>ชื่อตัว - ชื่อสกุล ผู้สมัครรับเลือกตั้ง</td><td>สังกัดพรรคการเมือง</td><td>ได้คะแนน ตัวเลข (อารบิก) / ตัวอักษร</td></tr><tr><td>1</td><td>นายสมเกียรติ ตันติคกตระกูล</td><td>พรรคเพื่อไทย</td><td>240 (สองร้อยสี่สิบ)</td></tr><tr><td>2</td><td>นายสุกิจ อ่อนขาว</td><td>พรรคประชาธิปัตย์</td><td>5 (ห้า)</td></tr><tr><td>3</td><td>ร้อยตรี ทองศรภัณฑ์ ภูวิสิตาธิพล</td><td>พรรคไทยรักใหม่</td><td>( )</td></tr><tr><td>4</td><td>นายกฤศวัฒน์ เลิศวิริยาภรณ์</td><td>พรรคประชาชน</td><td>63 (หกสิบสาม)</td></tr><tr><td>5</td><td>นายฉนวัฒน์ ผาสุขมูล</td><td>พรรคคล้ายธรรม</td><td>1 (หนึ่ง)</td></tr><tr><td>6</td><td>ร้อยตำรวจเอกวีระพงษ์ แอนนิยาย</td><td>พรรคเศรษฐกิจ</td><td>7 (เจ็ด)</td></tr></table>"
+      },
+      {
+        "page_no": 2,
+        "image_path": "/content/drive/MyDrive/DSDE_final_project/pipeline_output/images/cfcd90e551022295366bdf7c0f6c7a44/p2.png",
+        "page_role": "continuation",
+        "ocr_latency_sec": 7.75,
+        "failure_modes": [],
+        "error": null,
+        "raw_ocr": "หน่วยเลือกตั้งที่ 3 หมู่ที่ 3 ตำบล/แขวง/เทศบาล โคกนด\nอำเภอ/เขต โนนสูง เขตเลือกตั้งที่ 5 จังหวัด นครราชสีมา ส.ส. ๕/๑๘\n\n<table><tr><td>หมายเลข ประจำตัว ผู้สมัคร</td><td>ชื่อตัว - ชื่อสกุล ผู้สมัครรับเลือกตั้ง</td><td>สังกัดพรรคการเมือง</td><td>ได้คะแนน ตัวเลข (อารบิก) / ตัวอักษร</td></tr><tr><td>7</td><td>นายทวิษฐ รัตนเศรษฐ</td><td>พรรคภูมิใจไทย</td><td>173 (หนึ่งร้อยเจ็ดสิบสาม)</td></tr><tr><td>8</td><td>นางสาวธวัลลักษณ์ ทองสันเทียะ</td><td>พรรคไทยภักดี</td><td>2 (สอง)</td></tr><tr><td>9</td><td>นางสาวพิมนภาคค์ ธีร์กำนพูลกลาง</td><td>พรรคพลังประชารัฐ</td><td>1 (หนึ่ง)</td></tr><tr><td>10</td><td></td><td></td><td>( )</td></tr><tr><td>11</td><td></td><td></td><td>( )</td></tr><tr><td>12</td><td></td><td></td><td>( )</td></tr><tr><td>13</td><td></td><td></td><td>( )</td></tr><tr><td>14</td><td></td><td></td><td>( )</td></tr><tr><td>15</td><td></td><td></td><td>( )</td></tr><tr><td>16</td><td></td><td></td><td>( )</td></tr><tr><td>17</td><td></td><td></td><td>( )</td></tr><tr><td>18</td><td></td><td></td><td>( )</td></tr><tr><td>19</td><td></td><td></td><td>( )</td></tr><tr><td>20</td><td></td><td></td><td>( )</td></tr><tr><td colspan=\"3\">รวมคะแนนทั้งสิ้น</td><td>492 (สี่ร้อยเก้าสิบสอง)</td></tr></table>\n\nประกาศ ณ วันที่ 8 เดือน กุมภาพันธ์ พ.ศ. 2569\n(ลงชื่อ) ศิริพร ประธานกรรมการประจำหน่วยเลือกตั้ง\n(นางศิริพร ต่างเหลี่ยม)\n\n(ลงชื่อ) จักรกิตติ์ ประธานกรรมการประจำหน่วยเลือกตั้ง\n(นายจักรกิตติ์ วรรณโสภา)\n\n(ลงชื่อ) นวลจันทร์ กรรมการประจำหน่วยเลือกตั้ง\n(นางนวลจันทร์ แสงกลาง)\n\n(ลงชื่อ) วัชรมน กรรมการประจำหน่วยเลือกตั้ง\n(น.ส.วัชรมน สาตรา)\n\n(ลงชื่อ) อองเจิม กรรมการประจำหน่วยเลือกตั้ง\n(นางอองเจิม โพธิ์ทอง)\n\n(ลงชื่อ) ศักดิ์ กรรมการประจำหน่วยเลือกตั้ง\n(นายศักดิ์ กลักโพธิ์)\n\n(ลงชื่อ) ชุมพล กรรมการประจำหน่วยเลือกตั้ง\n(นางชุมพล หลาง)\n\n(ลงชื่อ) พรทิพย์ เสรียงชัย กรรมการประจำหน่วยเลือกตั้ง\n(น.ส.พรทิพย์ เสรียงชัย)\n\nหมายเหตุ"
+      }
+    ]
+  },
+  {
+    "metadata": {
+      "file_id": "cfcd90e551022295366bdf7c0f6c7a44",
+      "pdf_name": "โตนด น.3.pdf",
+      "processed_at": "2026-05-06T14:09:45.342739",
+      "total_pages": 4
+    },
+    "election_type": "normal",
+    "ballot_type": "partylist",
+    "district": "ต",
+    "subdistrict": "โตนด",
+    "moo": 3,
+    "station_number": 3,
+    "eligible_voters": 760,
+    "voter_turnout": 529,
+    "total_ballots": null,
+    "valid_votes": null,
+    "void_ballots": null,
+    "spoiled_ballots": 15,
+    "candidates": [
+      {
+        "number": 1,
+        "name": null,
+        "party": "ไทยทรัพย์ทวี",
+        "votes": 12,
+        "withdrawn": false
+      },
+      {
+        "number": 2,
+        "name": null,
+        "party": "เพื่อชาติไทย",
+        "votes": 13,
+        "withdrawn": false
+      },
+      {
+        "number": 3,
+        "name": null,
+        "party": "ใหม่",
+        "votes": 1,
+        "withdrawn": false
+      },
+      {
+        "number": 4,
+        "name": null,
+        "party": "มิติใหม่",
+        "votes": 1,
+        "withdrawn": false
+      },
+      {
+        "number": 5,
+        "name": null,
+        "party": "รวมใจไทย",
+        "votes": 5,
+        "withdrawn": false
+      },
+      {
+        "number": 6,
+        "name": null,
+        "party": "รวมไทยสร้างชาติ",
+        "votes": 12,
+        "withdrawn": false
+      },
+      {
+        "number": 7,
+        "name": null,
+        "party": "พลวัต",
+        "votes": 18,
+        "withdrawn": false
+      },
+      {
+        "number": 8,
+        "name": null,
+        "party": "ประชาธิปไตยใหม่",
+        "votes": 2,
+        "withdrawn": false
+      },
+      {
+        "number": 9,
+        "name": null,
+        "party": "เพื่อไทย",
+        "votes": 78,
+        "withdrawn": false
+      },
+      {
+        "number": 10,
+        "name": null,
+        "party": "ทางเลือกใหม่",
+        "votes": 1,
+        "withdrawn": false
+      },
+      {
+        "number": 11,
+        "name": null,
+        "party": "เศรษฐกิจ",
+        "votes": 21,
+        "withdrawn": false
+      },
+      {
+        "number": 12,
+        "name": null,
+        "party": "เสรีรวมไทย",
+        "votes": 1,
+        "withdrawn": false
+      },
+      {
+        "number": 13,
+        "name": null,
+        "party": "รวมพลังประชาชน",
+        "votes": 3,
+        "withdrawn": false
+      },
+      {
+        "number": 14,
+        "name": null,
+        "party": "ท้องที่ไทย",
+        "votes": 0,
+        "withdrawn": false
+      },
+      {
+        "number": 15,
+        "name": null,
+        "party": "อนาคตไทย",
+        "votes": 0,
+        "withdrawn": false
+      },
+      {
+        "number": 16,
+        "name": null,
+        "party": "พลังเพื่อไทย",
+        "votes": 2,
+        "withdrawn": false
+      },
+      {
+        "number": 17,
+        "name": null,
+        "party": "ไทยชนะ",
+        "votes": 1,
+        "withdrawn": false
+      },
+      {
+        "number": 18,
+        "name": null,
+        "party": "พลังสังคมใหม่",
+        "votes": 0,
+        "withdrawn": false
+      },
+      {
+        "number": 19,
+        "name": null,
+        "party": "สังคมประชาธิปไตย",
+        "votes": 0,
+        "withdrawn": false
+      },
+      {
+        "number": 20,
+        "name": null,
+        "party": "ฟิวชัน",
+        "votes": 0,
+        "withdrawn": false
+      },
+      {
+        "number": 21,
+        "name": null,
+        "party": "ไทรวมพลัง",
+        "votes": 1,
+        "withdrawn": false
+      },
+      {
+        "number": 22,
+        "name": null,
+        "party": "ก้าวอิสระ",
+        "votes": 0,
+        "withdrawn": false
+      },
+      {
+        "number": 23,
+        "name": null,
+        "party": "ปวงชนไทย",
+        "votes": 0,
+        "withdrawn": false
+      },
+      {
+        "number": 24,
+        "name": null,
+        "party": "วิชชั่นใหม่",
+        "votes": 2,
+        "withdrawn": false
+      },
+      {
+        "number": 25,
+        "name": null,
+        "party": "เพื่อชีวิตใหม่",
+        "votes": 0,
+        "withdrawn": false
+      },
+      {
+        "number": 26,
+        "name": null,
+        "party": "คลองไทย",
+        "votes": 2,
+        "withdrawn": false
+      },
+      {
+        "number": 27,
+        "name": null,
+        "party": "ประชาธิปัตย์",
+        "votes": 7,
+        "withdrawn": false
+      },
+      {
+        "number": 28,
+        "name": null,
+        "party": "ไทยก้าวหน้า",
+        "votes": 0,
+        "withdrawn": false
+      },
+      {
+        "number": 29,
+        "name": null,
+        "party": "ไทยภักดี",
+        "votes": 3,
+        "withdrawn": false
+      },
+      {
+        "number": 30,
+        "name": null,
+        "party": "แรงงานสร้างชาติ",
+        "votes": 1,
+        "withdrawn": false
+      },
+      {
+        "number": 31,
+        "name": null,
+        "party": "ประชากรไทย",
+        "votes": 0,
+        "withdrawn": false
+      },
+      {
+        "number": 32,
+        "name": null,
+        "party": "ครูไทยเพื่อประชาชน",
+        "votes": 1,
+        "withdrawn": false
+      },
+      {
+        "number": 33,
+        "name": null,
+        "party": "ประชาชาติ",
+        "votes": 2,
+        "withdrawn": false
+      },
+      {
+        "number": 34,
+        "name": null,
+        "party": "สร้างอนาคตไทย",
+        "votes": 1,
+        "withdrawn": false
+      },
+      {
+        "number": 35,
+        "name": null,
+        "party": "รักชาติ",
+        "votes": 2,
+        "withdrawn": false
+      },
+      {
+        "number": 36,
+        "name": null,
+        "party": "ไทยพร้อม",
+        "votes": 2,
+        "withdrawn": false
+      },
+      {
+        "number": 37,
+        "name": null,
+        "party": "ภูมิใจไทย",
+        "votes": 176,
+        "withdrawn": false
+      },
+      {
+        "number": 38,
+        "name": null,
+        "party": "พลังธรรมใหม่",
+        "votes": 0,
+        "withdrawn": false
+      },
+      {
+        "number": 39,
+        "name": null,
+        "party": "กรีน",
+        "votes": 1,
+        "withdrawn": false
+      },
+      {
+        "number": 40,
+        "name": null,
+        "party": "ไทยธรรม",
+        "votes": 1,
+        "withdrawn": false
+      },
+      {
+        "number": 41,
+        "name": null,
+        "party": "แผ่นดินธรรม",
+        "votes": 0,
+        "withdrawn": false
+      },
+      {
+        "number": 42,
+        "name": null,
+        "party": "กล้าธรรม",
+        "votes": 0,
+        "withdrawn": false
+      },
+      {
+        "number": 43,
+        "name": null,
+        "party": "พลังประชารัฐ",
+        "votes": 3,
+        "withdrawn": false
+      },
+      {
+        "number": 44,
+        "name": null,
+        "party": "โอกาสใหม่",
+        "votes": 0,
+        "withdrawn": false
+      },
+      {
+        "number": 45,
+        "name": null,
+        "party": "เป็นธรรม",
+        "votes": 0,
+        "withdrawn": false
+      },
+      {
+        "number": 46,
+        "name": null,
+        "party": "ประชาชน",
+        "votes": 109,
+        "withdrawn": false
+      },
+      {
+        "number": 47,
+        "name": null,
+        "party": "ประชาไทย",
+        "votes": 1,
+        "withdrawn": false
+      },
+      {
+        "number": 48,
+        "name": null,
+        "party": "ไทยสร้างไทย",
+        "votes": 1,
+        "withdrawn": false
+      },
+      {
+        "number": 49,
+        "name": null,
+        "party": "ไทยก้าวใหม่",
+        "votes": 1,
+        "withdrawn": false
+      },
+      {
+        "number": 50,
+        "name": null,
+        "party": "ประชาอาสาชาติ",
+        "votes": 0,
+        "withdrawn": false
+      },
+      {
+        "number": 51,
+        "name": null,
+        "party": "พร้อม",
+        "votes": 0,
+        "withdrawn": false
+      },
+      {
+        "number": 52,
+        "name": null,
+        "party": "เครือข่ายชาวนาแห่งประเทศไทย",
+        "votes": 0,
+        "withdrawn": false
+      },
+      {
+        "number": 53,
+        "name": null,
+        "party": "ไทยพิทักษ์ธรรม",
+        "votes": 0,
+        "withdrawn": false
+      },
+      {
+        "number": 54,
+        "name": null,
+        "party": "ความหวังใหม่",
+        "votes": 0,
+        "withdrawn": false
+      },
+      {
+        "number": 55,
+        "name": null,
+        "party": "ไทยรวมไทย",
+        "votes": 1,
+        "withdrawn": false
+      },
+      {
+        "number": 56,
+        "name": null,
+        "party": "เพื่อบ้านเมือง",
+        "votes": 0,
+        "withdrawn": false
+      },
+      {
+        "number": 57,
+        "name": null,
+        "party": "พลังไทยรักชาติ",
+        "votes": 2,
+        "withdrawn": false
+      }
+    ],
+    "total_is_valid": false,
+    "validation_message": "total_ballots not found in header",
+    "candidate_sum_valid": false,
+    "candidate_sum_message": "valid_votes not available for comparison",
+    "failure_modes": [
+      "null_header_field:total_ballots",
+      "null_header_field:valid_votes",
+      "null_header_field:void_ballots"
+    ],
+    "pages": [
+      {
+        "page_no": 3,
+        "image_path": "/content/drive/MyDrive/DSDE_final_project/pipeline_output/images/cfcd90e551022295366bdf7c0f6c7a44/p3.png",
+        "page_role": "header",
+        "ocr_latency_sec": 8.36,
+        "failure_modes": [
+          "null_header_field:total_ballots",
+          "null_header_field:valid_votes",
+          "null_header_field:void_ballots"
+        ],
+        "error": null,
+        "raw_ocr": "ชุดที่ ๑ (สีขาว) ส่งให้คณะกรรมการการเลือกตั้งประจำเขตเลือกตั้ง\nชุดที่ ๒ (สีเขียว) ปิดประกาศหน้าที่เลือกตั้ง\nชุดที่ ๓ (สีชมพู) ใส่ในถุงวัสดุใสขั้นนอก\n\nส.ส. ๕/๑๘ (บช)\n\nรายงานผลการนับคะแนนสมาชิกสภาผู้แทนราษฎรแบบบัญชีรายชื่อ\n\nตามที่ได้มีพระราชกฤษฎีกาให้มีการเลือกตั้งสมาชิกสภาผู้แทนราษฎร และคณะกรรมการการเลือกตั้ง ได้กำหนดให้วันที่ 8 เดือน กุมภาพันธ์ พ.ศ. 2569 เป็นวันเลือกตั้ง นั้น\nบัดนี้ คณะกรรมการประจำหน่วยเลือกตั้งได้ดำเนินการนับคะแนนสมาชิกสภาผู้แทนราษฎร แบบบัญชีรายชื่อของหน่วยเลือกตั้งที่ 3 หมู่ที่ 3 ตำบลแขวงเทศบาลโตนด\nอำเภอ/เขต-โนนสูง เขตเลือกตั้งที่ 5 จังหวัดนครราชสีมา เสร็จสิ้นเป็นที่เรียบร้อยแล้ว ดังนั้น จึงขอรายงานผลการนับคะแนนของหน่วยเลือกตั้งดังกล่าว ดังนี้\n๑. จำนวนผู้มีสิทธิเลือกตั้ง\n    ๑.๑ จำนวนผู้มีสิทธิเลือกตั้งตามบัญชีรายชื่อผู้มีสิทธิเลือกตั้ง 760 คน (เจ็ดร้อยหกสิบคน)\n    ๑.๒ จำนวนผู้มีสิทธิเลือกตั้งที่มาแสดงตน 529 คน (ห้าร้อยยี่สิบเก้าคน) (เฉพาะวันเลือกตั้ง)\n๒. จำนวนบัตรเลือกตั้ง\n    ๒.๑ จำนวนบัตรเลือกตั้งที่ได้รับจัดสรร 760 / บัตร (เจ็ดร้อยหกสิบบัตร)\n    ๒.๒ จำนวนบัตรเลือกตั้งที่ใช้ 529 / บัตร (ห้าร้อยยี่สิบเก้าบัตร)\n    ๒.๒.๑ บัตรดี 491 / บัตร (สี่ร้อยเก้าสิบเอ็ดบัตร)\n    ๒.๒.๒ บัตรเสีย 23 / บัตร (ยี่สิบสามบัตร)\n    ๒.๒.๓ บัตรที่ไม่เลือกบัญชีรายชื่อของพรรคการเมืองใด 15 บัตร (สิบห้าบัตร)\n    ๒.๓ จำนวนบัตรเลือกตั้งที่เหลือ 231 / บัตร (สองร้อยสามสิบเอ็ดบัตร)\n๓. จำนวนคะแนนที่พรรคการเมืองแต่ละพรรคได้รับเรียงตามลำดับหมายเลขของบัญชีรายชื่อของพรรคการเมือง\n\n<table><tr><td>หมายเลขของบัญชีรายชื่อ ของพรรคการเมือง</td><td>ชื่อพรรคการเมือง</td><td>ได้คะแนน ตัวเลข (อารบิก) / ตัวอักษร</td></tr><tr><td>1</td><td>ไทยทรัพย์ทวี</td><td>12 (สิบสอง)</td></tr><tr><td>2</td><td>เพื่อชาติไทย</td><td>13 (สิบสาม)</td></tr><tr><td>3</td><td>ใหม่</td><td>1 (หนึ่ง)</td></tr><tr><td>4</td><td>มิติใหม่</td><td>1 (หนึ่ง)</td></tr><tr><td>5</td><td>รวมใจไทย</td><td>5 (ห้า)</td></tr><tr><td>6</td><td>รวมไทยสร้างชาติ</td><td>12 (สิบสอง)</td></tr></table>"
+      },
+      {
+        "page_no": 4,
+        "image_path": "/content/drive/MyDrive/DSDE_final_project/pipeline_output/images/cfcd90e551022295366bdf7c0f6c7a44/p4.png",
+        "page_role": "continuation",
+        "ocr_latency_sec": 8.28,
+        "failure_modes": [],
+        "error": null,
+        "raw_ocr": "หน้า ๒\nน่วยเลือกตั้งที่ 3 หมู่ที่ 3 ตำบล/แขวง/เทศบาล โคกนด\nอำเภอ/เขต โนนสูง เขตเลือกตั้งที่ 5 จังหวัด นครราชสีมา ส.ส. ๕/๑๘ (บช)\n\n<table><tr><td>หมายเลขของบัญชีรายชื่อ ของพรรคการเมือง</td><td>ชื่อพรรคการเมือง</td><td>ได้คะแนน ตัวเลข (อารบิก) / ตัวอักษร</td></tr><tr><td>7</td><td>พลวัต</td><td>18 (สิบแปด)</td></tr><tr><td>8</td><td>ประชาธิปไตยใหม่</td><td>2 (สอง)</td></tr><tr><td>9</td><td>เพื่อไทย</td><td>78 (เจ็ดสิบแปด)</td></tr><tr><td>10</td><td>ทางเลือกใหม่</td><td>1 (หนึ่ง)</td></tr><tr><td>11</td><td>เศรษฐกิจ</td><td>21 (ยี่สิบเอ็ด)</td></tr><tr><td>12</td><td>เสรีรวมไทย</td><td>1 (หนึ่ง)</td></tr><tr><td>13</td><td>รวมพลังประชาชน</td><td>3 (สาม)</td></tr><tr><td>14</td><td>ท้องที่ไทย</td><td>0 (ศูนย์)</td></tr><tr><td>15</td><td>อนาคตไทย</td><td>0 (ศูนย์)</td></tr><tr><td>16</td><td>พลังเพื่อไทย</td><td>2 (สอง)</td></tr><tr><td>17</td><td>ไทยชนะ</td><td>1 (หนึ่ง)</td></tr><tr><td>18</td><td>สังคมใหม่ พลังสงครามใหม่</td><td>0 (ศูนย์)</td></tr><tr><td>19</td><td>สังคมประชาธิปไตยไทย</td><td>0 (ศูนย์)</td></tr><tr><td>20</td><td>ฟิวชัน</td><td>0 (ศูนย์)</td></tr><tr><td>21</td><td>ไทรวมพลัง</td><td>1 (หนึ่ง)</td></tr><tr><td>22</td><td>ก้าวอิสระ</td><td>0 (ศูนย์)</td></tr><tr><td>23</td><td>ปวงชนไทย</td><td>0 (ศูนย์)</td></tr><tr><td>24</td><td>วิชชั่นใหม่</td><td>2 (สอง)</td></tr><tr><td>25</td><td>เพื่อชีวิตใหม่</td><td>0 (ศูนย์)</td></tr><tr><td>26</td><td>คลองไทย</td><td>2 (สอง)</td></tr><tr><td>27</td><td>ประชาธิปัตย์</td><td>7 (เจ็ด)</td></tr><tr><td>28</td><td>ไทยก้าวหน้า</td><td>0 (ศูนย์)</td></tr><tr><td>29</td><td>ไทยภักดี</td><td>3 (สาม)</td></tr></table>"
+      },
+      {
+        "page_no": 5,
+        "image_path": "/content/drive/MyDrive/DSDE_final_project/pipeline_output/images/cfcd90e551022295366bdf7c0f6c7a44/p5.png",
+        "page_role": "continuation",
+        "ocr_latency_sec": 8.83,
+        "failure_modes": [],
+        "error": null,
+        "raw_ocr": "หน้า ๓\nหน่วยเลือกตั้งที่ 3 หมู่ที่ 3 ตำบล/แขวง/เทศบาล โตนด\nอำเภอ/เขต โนนสูง เขตเลือกตั้งที่ 5 จังหวัด นครราชสีมา ส.ส. ๕/๑๘ (บช)\n\n<table><tr><td>หมายเลขของบัญชีรายชื่อ ของพรรคการเมือง</td><td>ชื่อพรรคการเมือง</td><td>ได้คะแนน ตัวเลข (อารบิก) / ตัวอักษร</td></tr><tr><td>30</td><td>แรงงานสร้างชาติ</td><td>1 ( หนึ่ง )</td></tr><tr><td>31</td><td>ประชากรไทย</td><td>0 ( ศูนย์ )</td></tr><tr><td>32</td><td>ครูไทยเพื่อประชาชน</td><td>1 ( หนึ่ง )</td></tr><tr><td>33</td><td>ประชาชาติ</td><td>2 ( สอง )</td></tr><tr><td>34</td><td>สร้างอนาคตไทย</td><td>1 ( หนึ่ง )</td></tr><tr><td>35</td><td>รักชาติ</td><td>2 ( สอง )</td></tr><tr><td>36</td><td>ไทยพร้อม</td><td>2 ( สอง )</td></tr><tr><td>37</td><td>ภูมิใจไทย</td><td>176 ( หนึ่งร้อยเจ็ดสิบหก )</td></tr><tr><td>38</td><td>พลังธรรมใหม่</td><td>0 ( ศูนย์ )</td></tr><tr><td>39</td><td>กรีน</td><td>1 ( หนึ่ง )</td></tr><tr><td>40</td><td>ไทยธรรม</td><td>1 ( หนึ่ง )</td></tr><tr><td>41</td><td>แผ่นดินธรรม</td><td>0 ( ศูนย์ )</td></tr><tr><td>42</td><td>กล้าธรรม</td><td>0 ( ศูนย์ )</td></tr><tr><td>43</td><td>พลังประชารัฐ</td><td>3 ( สาม )</td></tr><tr><td>44</td><td>โอกาสใหม่</td><td>0 ( ศูนย์ )</td></tr><tr><td>45</td><td>เป็นธรรม</td><td>0 ( ศูนย์ )</td></tr><tr><td>46</td><td>ประชาชน</td><td>109 ( หนึ่งร้อยเก้า )</td></tr><tr><td>47</td><td>ประชาไทย</td><td>1 ( หนึ่ง )</td></tr><tr><td>48</td><td>ไทยสร้างไทย</td><td>1 ( หนึ่ง )</td></tr><tr><td>49</td><td>ไทยก้าวใหม่</td><td>1 ( หนึ่ง )</td></tr><tr><td>50</td><td>ประชาอาสาชาติ</td><td>0 ( ศูนย์ )</td></tr><tr><td>51</td><td>พร้อม</td><td>0 ( ศูนย์ )</td></tr><tr><td>52</td><td>เครือข่ายชาวนาแห่งประเทศไทย</td><td>0 ( ศูนย์ )</td></tr></table>"
+      },
+      {
+        "page_no": 6,
+        "image_path": "/content/drive/MyDrive/DSDE_final_project/pipeline_output/images/cfcd90e551022295366bdf7c0f6c7a44/p6.png",
+        "page_role": "continuation",
+        "ocr_latency_sec": 4.66,
+        "failure_modes": [],
+        "error": null,
+        "raw_ocr": "หน่วยเลือกตั้งที่ 3 หมู่ที่ 3 ตำบล/แขวง/เทศบาล โตนด\nอำเภอ/เขต โนนสูง เขตเลือกตั้งที่ 5 จังหวัด นครราชสีมา ส.ส. ๕/๑๘ (บช)\n\n<table><tr><td>หมายเลขของบัญชีรายชื่อ ของพรรคการเมือง</td><td>ชื่อพรรคการเมือง</td><td>ได้คะแนน ตัวเลข (อารบิก) / ตัวอักษร</td></tr><tr><td>53</td><td>ไทยพิทักษ์ธรรม</td><td>0 (ศูนย์)</td></tr><tr><td>54</td><td>ความหวังใหม่</td><td>0 (ศูนย์)</td></tr><tr><td>55</td><td>ไทยรวมไทย</td><td>1 (หนึ่ง)</td></tr><tr><td>56</td><td>เพื่อบ้านเมือง</td><td>0 (ศูนย์)</td></tr><tr><td>57</td><td>พลังไทยรักชาติ</td><td>2 (สอง)</td></tr><tr><td colspan=\"2\">รวมคะแนนทั้งสิ้น</td><td>491 (สี่ร้อยเก้าสิบเอ็ด)</td></tr></table>\n\nประกาศ ณ วันที่ 8 เดือน กุมภาพันธ์ พ.ศ. 2569\n\n(ลงชื่อ) ประธานกรรมการประจำหน่วยเลือกตั้ง\n(นางศิริพร คำเหลือม)\n\n(ลงชื่อ) กรรมการประจำหน่วยเลือกตั้ง (ลงชื่อ) กรรมการประจำหน่วยเลือกตั้ง\n(นายอาทิต แก้วกลาง) (นายจักภัทร วรรณโสดา)\n\n(ลงชื่อ) กรรมการประจำหน่วยเลือกตั้ง (ลงชื่อ) กรรมการประจำหน่วยเลือกตั้ง\n(น.ส.ทิพรม สาตรา) (นายศักดิ์ กลักโพธิ์)\n\n(ลงชื่อ) กรรมการประจำหน่วยเลือกตั้ง (ลงชื่อ) กรรมการประจำหน่วยเลือกตั้ง\n(นายสำเน็ต ถึงกลาง) (นางลัมภา ซุ่มทองหลาง)\n\n(ลงชื่อ) กรรมการประจำหน่วยเลือกตั้ง (ลงชื่อ) กรรมการประจำหน่วยเลือกตั้ง\n(นางดวงเต็ม โพธิ์ทอง) (นางสาวพทิพย์ เสรียงชัย)\n\nหมายเหตุ"
+      }
+    ]
+  }
+]

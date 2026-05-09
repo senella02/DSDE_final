@@ -1,0 +1,14 @@
+[
+  {
+    "ballot_type": "district",
+    "valid_votes": 87644,
+    "void_ballots": 3871,
+    "spoiled_ballots": 3614
+  },
+  {
+    "ballot_type": "partylist",
+    "valid_votes": 86005,
+    "void_ballots": 5849,
+    "spoiled_ballots": 3277
+  }
+]

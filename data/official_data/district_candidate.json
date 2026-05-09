@@ -1,0 +1,56 @@
+[
+  {
+    "number": 1,
+    "name": "สมเกียรติ ตันดิลกตระกูล",
+    "party": "เพื่อไทย",
+    "withdrawn": false
+  },
+  {
+    "number": 2,
+    "name": "สุกิจ อ่อนขาว",
+    "party": "ประชาธิปัตย์",
+    "withdrawn": false
+  },
+  {
+    "number": 3,
+    "name": null,
+    "party": "",
+    "withdrawn": true
+  },
+  {
+    "number": 4,
+    "name": "กฤศวัฒน์ เลิศวิริยาภรณ์",
+    "party": "ประชาชน",
+    "withdrawn": false
+  },
+  {
+    "number": 5,
+    "name": "ธนวัฒน์ ผาสุขมูล",
+    "party": "กล้าธรรม",
+    "withdrawn": false
+  },
+  {
+    "number": 6,
+    "name": "วีระพงษ์ แดนพิมาย",
+    "party": "เศรษฐกิจ",
+    "withdrawn": false
+  },
+  {
+    "number": 7,
+    "name": "ทวิรัฐ รัตนเศรษฐ",
+    "party": "ภูมิใจไทย",
+    "withdrawn": false
+  },
+  {
+    "number": 8,
+    "name": "ชวัลลักษณ์ ทองสันเทียะ",
+    "party": "ไทยภักดี",
+    "withdrawn": false
+  },
+  {
+    "number": 9,
+    "name": "พิมนกาลล์ ธีร์ก้านภูกลาง",
+    "party": "พลังประชารัฐ",
+    "withdrawn": false
+  }
+]

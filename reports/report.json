@@ -1,0 +1,18 @@
+{
+  "geo_remapping": {
+    "total_records": 607,
+    "district": {
+      "null_filled": 11,
+      "value_changed": 568,
+      "unchanged": 0,
+      "total_remapped": 579
+    },
+    "subdistrict": {
+      "null_filled": 6,
+      "value_changed": 432,
+      "unchanged": 0,
+      "total_remapped": 438
+    }
+  },
+  "last_updated": "2026-05-09T22:29:25.686183"
+}

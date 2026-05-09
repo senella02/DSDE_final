@@ -1,0 +1,105 @@
+[
+  {
+    "metadata": {
+      "file_id": "f8139889ac2eb2a32ee940a21e53ccd3",
+      "pdf_name": "น.5 ต.ชีวาน ส.ส.5_18.pdf",
+      "processed_at": "2026-05-06T10:33:20.052635",
+      "total_pages": 1
+    },
+    "election_type": "normal",
+    "ballot_type": "district",
+    "district": null,
+    "subdistrict": null,
+    "moo": null,
+    "station_number": null,
+    "eligible_voters": null,
+    "voter_turnout": null,
+    "total_ballots": null,
+    "valid_votes": null,
+    "void_ballots": null,
+    "spoiled_ballots": null,
+    "candidates": [
+      {
+        "number": 1,
+        "name": "สมเกียรติ ตันดิลกตระกูล",
+        "party": "เพื่อไทย",
+        "votes": null,
+        "withdrawn": false
+      },
+      {
+        "number": 2,
+        "name": "สุกิจ อ่อนขาว",
+        "party": "ประชาธิปัตย์",
+        "votes": null,
+        "withdrawn": false
+      },
+      {
+        "number": 3,
+        "name": NaN,
+        "party": NaN,
+        "votes": null,
+        "withdrawn": true
+      },
+      {
+        "number": 4,
+        "name": "กฤศวัฒน์ เลิศวิริยาภรณ์",
+        "party": "ประชาชน",
+        "votes": null,
+        "withdrawn": false
+      },
+      {
+        "number": 5,
+        "name": "ธนวัฒน์ ผาสุขมูล",
+        "party": "กล้าธรรม",
+        "votes": null,
+        "withdrawn": false
+      },
+      {
+        "number": 6,
+        "name": "วีระพงษ์ แดนพิมาย",
+        "party": "เศรษฐกิจ",
+        "votes": null,
+        "withdrawn": false
+      },
+      {
+        "number": 7,
+        "name": "ทวิรัฐ รัตนเศรษฐ",
+        "party": "ภูมิใจไทย",
+        "votes": 67,
+        "withdrawn": false
+      },
+      {
+        "number": 8,
+        "name": "ชวัลลักษณ์ ทองสันเทียะ",
+        "party": "ไทยภักดี",
+        "votes": 0,
+        "withdrawn": false
+      },
+      {
+        "number": 9,
+        "name": "พิมนกาลล์ ธีร์ก้านภูกลาง",
+        "party": "พลังประชารัฐ",
+        "votes": 5,
+        "withdrawn": false
+      }
+    ],
+    "total_is_valid": false,
+    "validation_message": "total_ballots not found in header",
+    "candidate_sum_valid": false,
+    "candidate_sum_message": "valid_votes not available for comparison",
+    "failure_modes": [
+      "ocr_missed_candidates:[1, 2, 4, 5, 6]"
+    ],
+    "pages": [
+      {
+        "page_no": 2,
+        "image_path": "/content/drive/MyDrive/DSDE_final_project/pipeline_output/images/f8139889ac2eb2a32ee940a21e53ccd3/p2.png",
+        "page_role": "continuation",
+        "ocr_latency_sec": 6.98,
+        "failure_modes": [],
+        "error": null,
+        "raw_ocr": "หน้า ๒\nส.ส. ๕/๑๘\n\nหน่วยเลือกตั้งที่ ๕ หมู่ที่ ๖ ตำบล/แขวง/เทศบาล ชีวาป\nอำเภอ/เขต กิ่งบัว เขตเลือกตั้งที่ ๕ จังหวัด นครราชสีมา\n\n<table><tr><td>หมายเลข ประจำตัว ผู้สมัคร</td><td>ชื่อตัว - ชื่อสกุล ผู้สมัครรับเลือกตั้ง</td><td>สังกัดพรรคการเมือง</td><td>ได้คะแนน ตัวเลข (อารบิก) / ตัวอักษร</td></tr><tr><td>7</td><td>นายทำฐ รัตนเศรณย</td><td>ภูมิใจไทย</td><td>67 (หกสิบเจ็ด)</td></tr><tr><td>8</td><td>นางสาวธวัลลักษณ์ ทองสันเทียน</td><td>ไทยภักดี</td><td>0 (ศูนย์)</td></tr><tr><td>9</td><td>นางสาวพิมพาภาล์ ซึ่งบ้านพลูกลาง</td><td>พลังประชารัฐ</td><td>5 (ห้า)</td></tr><tr><td>10</td><td></td><td></td><td>( )</td></tr><tr><td>11</td><td></td><td></td><td>( )</td></tr><tr><td>12</td><td></td><td></td><td>( )</td></tr><tr><td>13</td><td></td><td></td><td>( )</td></tr><tr><td>14</td><td></td><td></td><td>( )</td></tr><tr><td>15</td><td></td><td></td><td>( )</td></tr><tr><td>16</td><td></td><td></td><td>( )</td></tr><tr><td>17</td><td></td><td></td><td>( )</td></tr><tr><td>18</td><td></td><td></td><td>( )</td></tr><tr><td>19</td><td></td><td></td><td>( )</td></tr><tr><td>20</td><td></td><td></td><td>( )</td></tr><tr><td colspan=\"3\">รวมคะแนนทั้งสิ้น</td><td>180 หนึ่งร้อยแปดสิบ</td></tr></table>\n\nประกาศ ณ วันที่ 8 เดือน กุมภาพันธ์ พ.ศ. 2569\n(ลงชื่อ) พรศิริ ประธานกรรมการประจำหน่วยเลือกตั้ง\n(พรศิริ พรหมจริง)\n(ลงชื่อ) ณัฐฐา รองประธานกรรมการประจำหน่วยเลือกตั้ง\n(ณัฐฐา พรหมจริง)\n(ลงชื่อ) ณัชชาภา ผู้ชมธรรม กรรมการประจำหน่วยเลือกตั้ง\n(ณัชชาภา ผสมฉาย)\n(ลงชื่อ) ณัฐญา แก้วหอม กรรมการประจำหน่วยเลือกตั้ง\n(ณัฐญา แก้วหอม)\n(ลงชื่อ) ณัฐกฤดา ศิลาธรรม กรรมการประจำหน่วยเลือกตั้ง\n(ณัฐกฤดา ศิลาธรรม)\n(ลงชื่อ) วิชิต วงศ์พิชชา กรรมการประจำหน่วยเลือกตั้ง\n(วิชิต วงศ์พิชชา)\n(ลงชื่อ) กำธร กรมทอง กรรมการประจำหน่วยเลือกตั้ง\n(กำธร กรมทอง)\n\nหมายเหตุ"
+      }
+    ]
+  }
+]

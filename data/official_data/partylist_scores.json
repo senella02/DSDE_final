@@ -1,0 +1,423 @@
+[
+  {
+    "rank": 1,
+    "party": "ภูมิใจไทย",
+    "number": 37,
+    "score": 22285,
+    "percent": "25.91%"
+    
+  },
+  {
+    "rank": 2,
+    "party": "ประชาชน",
+    "number": 46,
+    "score": 22017,
+    "percent": "25.60%"
+  },
+  {
+    "rank": 3,
+    "party": "เพื่อไทย",
+    "number": 9,
+    "score": 18807,
+    "percent": "21.87%"
+  },
+  {
+    "rank": 4,
+    "party": "เศรษฐกิจ",
+    "number": 11,
+    "score": 4183,
+    "percent": "4.86%"
+  },
+  {
+    "rank": 5,
+    "party": "ไทยทรัพย์ทวี",
+    "number": 1,
+    "score": 3264,
+    "percent": "3.80%"
+  },
+  {
+    "rank": 6,
+    "party": "เพื่อชาติไทย",
+    "number": 2,
+    "score": 2075,
+    "percent": "2.41%"
+  },
+  {
+    "rank": 7,
+    "party": "ประชาธิปัตย์",
+    "number": 27,
+    "score": 2005,
+    "percent": "2.33%"
+  },
+  {
+    "rank": 8,
+    "party": "พลวัต",
+    "number": 7,
+    "score": 1949,
+    "percent": "2.27%"
+  },
+  {
+    "rank": 9,
+    "party": "รวมไทยสร้างชาติ",
+    "number": 6,
+    "score": 1517,
+    "percent": "1.76%"
+  },
+  {
+    "rank": 10,
+    "party": "รวมใจไทย",
+    "number": 5,
+    "score": 617,
+    "percent": "0.72%"
+  },
+  {
+    "rank": 11,
+    "party": "ประชาธิปไตยใหม่",
+    "number": 8,
+    "score": 524,
+    "percent": "0.61%"
+  },
+  {
+    "rank": 12,
+    "party": "รวมพลังประชาชน",
+    "number": 13,
+    "score": 464,
+    "percent": "0.54%"
+  },
+  {
+    "rank": 13,
+    "party": "โอกาสใหม่",
+    "number": 44,
+    "score": 455,
+    "percent": "0.53%"
+  },
+  {
+    "rank": 14,
+    "party": "ทางเลือกใหม่",
+    "number": 10,
+    "score": 448,
+    "percent": "0.52%"
+  },
+  {
+    "rank": 15,
+    "party": "ไทยภักดี",
+    "number": 29,
+    "score": 438,
+    "percent": "0.51%"
+  },
+  {
+    "rank": 16,
+    "party": "เสรีรวมไทย",
+    "number": 12,
+    "score": 356,
+    "percent": "0.41%"
+  },
+  {
+    "rank": 17,
+    "party": "มิติใหม่",
+    "number": 4,
+    "score": 341,
+    "percent": "0.40%"
+  },
+  {
+    "rank": 18,
+    "party": "แรงงานสร้างชาติ",
+    "number": 30,
+    "score": 322,
+    "percent": "0.37%"
+  },
+  {
+    "rank": 19,
+    "party": "ใหม่",
+    "number": 3,
+    "score": 297,
+    "percent": "0.35%"
+  },
+  {
+    "rank": 20,
+    "party": "ไทยสร้างไทย",
+    "number": 48,
+    "score": 297,
+    "percent": "0.35%"
+  },
+  {
+    "rank": 21,
+    "party": "พลังธรรมใหม่",
+    "number": 38,
+    "score": 284,
+    "percent": "0.33%"
+  },
+  {
+    "rank": 22,
+    "party": "ไทยพร้อม",
+    "number": 36,
+    "score": 278,
+    "percent": "0.32%"
+  },
+  {
+    "rank": 23,
+    "party": "พลังเพื่อไทย",
+    "number": 16,
+    "score": 219,
+    "percent": "0.25%"
+  },
+  {
+    "rank": 24,
+    "party": "ประชากรไทย",
+    "number": 31,
+    "score": 214,
+    "percent": "0.25%"
+  },
+  {
+    "rank": 25,
+    "party": "ไทยก้าวใหม่",
+    "number": 49,
+    "score": 178,
+    "percent": "0.21%"
+  },
+  {
+    "rank": 26,
+    "party": "พลังประชารัฐ",
+    "number": 43,
+    "score": 175,
+    "percent": "0.20%"
+  },
+  {
+    "rank": 27,
+    "party": "ประชาไทย",
+    "number": 47,
+    "score": 156,
+    "percent": "0.18%"
+  },
+  {
+    "rank": 28,
+    "party": "รักชาติ",
+    "number": 35,
+    "score": 155,
+    "percent": "0.18%"
+  },
+  {
+    "rank": 29,
+    "party": "สร้างอนาคตไทย",
+    "number": 34,
+    "score": 125,
+    "percent": "0.15%"
+  },
+  {
+    "rank": 30,
+    "party": "ไทยชนะ",
+    "number": 17,
+    "score": 124,
+    "percent": "0.14%"
+  },
+  {
+    "rank": 31,
+    "party": "ไทยก้าวหน้า",
+    "number": 28,
+    "score": 117,
+    "percent": "0.14%"
+  },
+  {
+    "rank": 32,
+    "party": "ครูไทยเพื่อประชาชน",
+    "number": 32,
+    "score": 115,
+    "percent": "0.13%"
+  },
+  {
+    "rank": 33,
+    "party": "กล้าธรรม",
+    "number": 42,
+    "score": 115,
+    "percent": "0.13%"
+  },
+  {
+    "rank": 34,
+    "party": "ประชาชาติ",
+    "number": 33,
+    "score": 107,
+    "percent": "0.12%"
+  },
+  {
+    "rank": 35,
+    "party": "พลังไทยรักชาติ",
+    "number": 57,
+    "score": 87,
+    "percent": "0.10%"
+  },
+  {
+    "rank": 36,
+    "party": "อนาคตไทย",
+    "number": 15,
+    "score": 71,
+    "percent": "0.08%"
+  },
+  {
+    "rank": 37,
+    "party": "ไทยธรรม",
+    "number": 40,
+    "score": 70,
+    "percent": "0.08%"
+  },
+  {
+    "rank": 38,
+    "party": "ปวงชนไทย",
+    "number": 23,
+    "score": 59,
+    "percent": "0.07%"
+  },
+  {
+    "rank": 39,
+    "party": "ท้องที่ไทย",
+    "number": 14,
+    "score": 58,
+    "percent": "0.07%"
+  },
+  {
+    "rank": 40,
+    "party": "ไทรวมพลัง",
+    "number": 21,
+    "score": 56,
+    "percent": "0.07%"
+  },
+  {
+    "rank": 41,
+    "party": "วิชชั่นใหม่",
+    "number": 24,
+    "score": 56,
+    "percent": "0.07%"
+  },
+  {
+    "rank": 42,
+    "party": "พร้อม",
+    "number": 51,
+    "score": 56,
+    "percent": "0.07%"
+  },
+  {
+    "rank": 43,
+    "party": "เป็นธรรม",
+    "number": 45,
+    "score": 54,
+    "percent": "0.06%"
+  },
+  {
+    "rank": 44,
+    "party": "กรีน",
+    "number": 39,
+    "score": 49,
+    "percent": "0.06%"
+  },
+  {
+    "rank": 45,
+    "party": "คลองไทย",
+    "number": 26,
+    "score": 45,
+    "percent": "0.05%"
+  },
+  {
+    "rank": 46,
+    "party": "ความหวังใหม่",
+    "number": 54,
+    "score": 36,
+    "percent": "0.04%"
+  },
+  {
+    "rank": 47,
+    "party": "เพื่อบ้านเมือง",
+    "number": 56,
+    "score": 36,
+    "percent": "0.04%"
+  },
+  {
+    "rank": 48,
+    "party": "สังคมประชาธิปไตยไทย",
+    "number": 19,
+    "score": 34,
+    "percent": "0.04%"
+  },
+  {
+    "rank": 49,
+    "party": "แผ่นดินธรรม",
+    "number": 41,
+    "score": 30,
+    "percent": "0.03%"
+  },
+  {
+    "rank": 50,
+    "party": "ก้าวอิสระ",
+    "number": 22,
+    "score": 29,
+    "percent": "0.03%"
+  },
+  {
+    "rank": 51,
+    "party": "เพื่อชีวิตใหม่",
+    "number": 25,
+    "score": 29,
+    "percent": "0.03%"
+  },
+  {
+    "rank": 52,
+    "party": "พลังสังคมใหม่",
+    "number": 18,
+    "score": 27,
+    "percent": "0.03%"
+  },
+  {
+    "rank": 53,
+    "party": "ไทยรวมไทย",
+    "number": 55,
+    "score": 27,
+    "percent": "0.03%"
+  },
+  {
+    "rank": 54,
+    "party": "ฟิวชัน",
+    "number": 20,
+    "score": 26,
+    "percent": "0.03%"
+  },
+  {
+    "rank": 55,
+    "party": "เครือข่ายชาวนาแห่งประเทศไทย",
+    "number": 52,
+    "score": 25,
+    "percent": "0.03%"
+  },
+  {
+    "rank": 56,
+    "party": "ไทยพิทักษ์ธรรม",
+    "number": 53,
+    "score": 18,
+    "percent": "0.02%"
+  },
+  {
+    "rank": 57,
+    "party": "ประชาอาสาชาติ",
+    "number": 50,
+    "score": 4,
+    "percent": "0.00%"
+  },
+  {
+    "rank": 58,
+    "party": "รักษ์ธรรม",
+    "number": 58,
+    "score": 0,
+    "percent": "0.00%"
+  },
+  {
+    "rank": 59,
+    "party": "รวมพลัง",
+    "number": 59,
+    "score": 0,
+    "percent": "0.00%"
+  },
+  {
+    "rank": 60,
+    "party": "สัมมาธิปไตย",
+    "number": 60,
+    "score": 0,
+    "percent": "0.00%"
+  }
+]
