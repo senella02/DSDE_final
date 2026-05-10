@@ -131,38 +131,37 @@ def _subdistrict_stats(records: pd.DataFrame, candidates: pd.DataFrame) -> pd.Da
         0, float("nan")
     )
 
-    # Winner per subdistrict (district ballot, Tier A candidates)
-    dist_cand, _ = clean_subset(
-        candidates[
-            (candidates["ballot_type"] == "district")
-            & (~candidates["withdrawn"].fillna(False))
-        ],
-        count_tier="A",
-        requires=["votes"],
-    )
-    if len(dist_cand) > 0:
-        dist_cand = dist_cand.copy()
-        dist_cand["sub_clean"] = dist_cand["subdistrict"].apply(
-            lambda s: _strip_prefix(str(s) if pd.notna(s) else "", "ตำบล")
+    # Winner per subdistrict for each ballot type (Tier A candidates)
+    for bt, prefix in [("district", ""), ("partylist", "pl_")]:
+        cand_sub, _ = clean_subset(
+            candidates[
+                (candidates["ballot_type"] == bt)
+                & (~candidates["withdrawn"].fillna(False))
+            ],
+            count_tier="A",
+            requires=["votes"],
         )
-        winner = (
-            dist_cand.sort_values("votes", ascending=False)
-            .groupby("sub_clean")
-            .first()
-            .reset_index()[["sub_clean", "party", "name", "votes"]]
-            .rename(
-                columns={
-                    "party": "winner_party",
-                    "name": "winner_name",
-                    "votes": "winner_votes",
-                }
+        if len(cand_sub) > 0:
+            cand_sub = cand_sub.copy()
+            cand_sub["sub_clean"] = cand_sub["subdistrict"].apply(
+                lambda s: _strip_prefix(str(s) if pd.notna(s) else "", "ตำบล")
             )
-        )
-        agg = agg.merge(winner, on="sub_clean", how="left")
-    else:
-        agg["winner_party"] = None
-        agg["winner_name"] = None
-        agg["winner_votes"] = None
+            winner = (
+                cand_sub.sort_values("votes", ascending=False)
+                .groupby("sub_clean")
+                .first()
+                .reset_index()[["sub_clean", "party", "name", "votes"]]
+                .rename(columns={
+                    "party": f"{prefix}winner_party",
+                    "name": f"{prefix}winner_name",
+                    "votes": f"{prefix}winner_votes",
+                })
+            )
+            agg = agg.merge(winner, on="sub_clean", how="left")
+        else:
+            agg[f"{prefix}winner_party"] = None
+            agg[f"{prefix}winner_name"] = None
+            agg[f"{prefix}winner_votes"] = None
 
     # Area type
     agg["area_type"] = agg["dist_clean"].apply(
@@ -226,52 +225,126 @@ def _build_choropleth_map(
     return m
 
 
+def _hex_to_rgba(hex_color: str, alpha: float = 0.65) -> str:
+    """Convert #RRGGBB to rgba(r,g,b,a) string for HTML tooltips."""
+    h = hex_color.lstrip("#")
+    r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+    return f"rgba({r},{g},{b},{alpha})"
+
+
+def _build_legend_html(parties: list[tuple[str, str]]) -> str:
+    """Return an HTML string for a floating map legend."""
+    items = "".join(
+        f'<div style="display:flex;align-items:center;gap:6px;margin:3px 0">'
+        f'<div style="width:14px;height:14px;background:{hex_col};border-radius:3px;flex-shrink:0"></div>'
+        f'<span style="font-size:12px">{party}</span></div>'
+        for party, hex_col in parties
+    )
+    return (
+        '<div style="position:fixed;bottom:30px;left:30px;z-index:1000;background:white;'
+        'padding:10px 14px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.25);'
+        'font-family:sans-serif;max-width:200px">'
+        f'<b style="font-size:13px">พรรคที่ชนะ</b>{items}</div>'
+    )
+
+
 def _add_winner_markers(
-    m: "folium.Map", features: list[dict], sub_stats: pd.DataFrame
+    m: "folium.Map",
+    features: list[dict],
+    sub_stats: pd.DataFrame,
+    ballot_type: str = "district",
 ) -> "folium.Map":
-    """Add circle markers at subdistrict centroids coloured by winning party."""
-    # Keep the row with the highest winner_votes when sub_clean is duplicated across districts
+    """Fill each subdistrict polygon with the winning party colour + popup."""
+    from branca.element import Element
+
+    prefix = "pl_" if ballot_type == "partylist" else ""
+    party_col = f"{prefix}winner_party"
+    name_col  = f"{prefix}winner_name"
+    votes_col = f"{prefix}winner_votes"
+
+    cols = [c for c in [party_col, name_col, votes_col, "turnout_rate"] if c in sub_stats.columns]
     deduped = (
-        sub_stats.sort_values("winner_votes", ascending=False)
+        sub_stats.sort_values(votes_col, ascending=False)
         .drop_duplicates("sub_clean")
-        .set_index("sub_clean")[
-            ["winner_party", "winner_name", "winner_votes", "turnout_rate"]
-        ]
+        .set_index("sub_clean")[cols]
     )
     winner_map = deduped.to_dict("index")
-    sub_names = list(winner_map.keys())
+    sub_names  = list(winner_map.keys())
+    seen_parties: list[tuple[str, str]] = []
+    seen_set: set[str] = set()
 
     for feat in features:
-        sub = feat["properties"].get("adm3_name1", "")
-        centroid = _feature_centroid(feat)
-        if centroid is None:
-            continue
+        sub      = feat["properties"].get("adm3_name1", "")
+        district = feat["properties"].get("adm2_name1", "")
+        matched  = _fuzzy_match(sub, sub_names)
+        row      = winner_map.get(matched, {})
+        party    = row.get(party_col) if row else None
 
-        matched = _fuzzy_match(sub, sub_names)
-        row = winner_map.get(matched, {})
-        party = row.get("winner_party") if row else None
         if not party or (isinstance(party, float) and pd.isna(party)):
+            # No data — light grey outline only
+            folium.GeoJson(
+                feat,
+                style_function=lambda _: {
+                    "fillColor": "#cccccc",
+                    "color": "#888",
+                    "weight": 1,
+                    "fillOpacity": 0.3,
+                },
+                tooltip=f"{sub} / {district} — ไม่มีข้อมูล",
+            ).add_to(m)
             continue
 
-        hex_color = color(party)
-        turnout = row.get("turnout_rate")
-        turnout_str = f"{turnout:.1%}" if turnout and not pd.isna(turnout) else "–"
+        hex_col  = color(party)
+        turnout  = row.get("turnout_rate")
+        turnout_str = f"{turnout:.1%}" if pd.notna(turnout) else "–"
+        name_val = row.get(name_col) or party
+        votes_val = row.get(votes_col, 0)
+        label    = "พรรค" if ballot_type == "partylist" else "ผู้ชนะ"
 
-        folium.CircleMarker(
-            location=centroid,
-            radius=9,
-            color=hex_color,
-            fill=True,
-            fill_color=hex_color,
-            fill_opacity=0.85,
-            popup=folium.Popup(
-                f"<b>{sub}</b><br>ผู้ชนะ: {row.get('winner_name', '–')}<br>"
-                f"พรรค: {party}<br>คะแนน: {row.get('winner_votes', 0):,.0f}<br>"
-                f"Turnout: {turnout_str}",
-                max_width=220,
+        if party not in seen_set:
+            seen_parties.append((party, hex_col))
+            seen_set.add(party)
+
+        popup_html = (
+            f'<div style="font-family:sans-serif;min-width:160px">'
+            f'<div style="background:{hex_col};color:white;padding:4px 8px;'
+            f'border-radius:4px 4px 0 0;font-weight:bold">{party}</div>'
+            f'<div style="padding:6px 8px;font-size:13px">'
+            f'<b>ตำบล:</b> {sub}<br>'
+            f'<b>อำเภอ:</b> {district}<br>'
+            f'<b>{label}:</b> {name_val}<br>'
+            f'<b>คะแนน:</b> {votes_val:,.0f}<br>'
+            f'<b>Turnout:</b> {turnout_str}'
+            f'</div></div>'
+        )
+
+        folium.GeoJson(
+            feat,
+            style_function=lambda _, hc=hex_col: {
+                "fillColor": hc,
+                "color": hc,
+                "weight": 1.5,
+                "fillOpacity": 0.65,
+            },
+            highlight_function=lambda _, hc=hex_col: {
+                "fillColor": hc,
+                "color": "#222",
+                "weight": 3,
+                "fillOpacity": 0.85,
+            },
+            tooltip=folium.GeoJsonTooltip(
+                fields=["adm3_name1", "adm2_name1"],
+                aliases=["ตำบล:", "อำเภอ:"],
+                style="font-family:sans-serif;font-size:13px",
             ),
-            tooltip=f"{sub} → {party}",
+            popup=folium.Popup(popup_html, max_width=240),
         ).add_to(m)
+
+    # Add floating legend
+    if seen_parties:
+        legend = Element(_build_legend_html(seen_parties))
+        m.get_root().html.add_child(legend)
+
     return m
 
 
@@ -352,20 +425,18 @@ def render(
             f"ไม่พบไฟล์ GeoJSON: `{_GEOJSON_PATH}` — วาง `tha_admin3.geojson` ใน `{_HERE.parent}`"
         )
     else:
-        map_type = st.radio(
-            "แสดงแผนที่",
-            ["Choropleth Turnout", "Winner per Subdistrict", "ทั้งคู่"],
-            horizontal=True,
-        )
+        def _make_map(ballot_type: str) -> "folium.Map":
+            m = folium.Map(location=[15.2, 102.4], zoom_start=9, tiles="CartoDB positron")
+            return _add_winner_markers(m, features, sub_stats, ballot_type=ballot_type)
 
-        m = _build_choropleth_map(features, sub_stats)
-        if map_type in ("Winner per Subdistrict", "ทั้งคู่"):
-            m = _add_winner_markers(m, features, sub_stats)
-
-        st_folium(m, height=540, width="stretch")
-
-        if map_type in ("Winner per Subdistrict", "ทั้งคู่"):
-            st.caption("จุดสี = พรรคที่ชนะในแต่ละตำบล (บัตรเขต Tier A)")
+        col_map1, col_map2 = st.columns(2)
+        with col_map1:
+            st.caption("บัตรเขต — เลือกคน (district)")
+            st_folium(_make_map("district"), height=480, use_container_width=True, key="map_district")
+        with col_map2:
+            st.caption("บัตรบัญชีรายชื่อ — เลือกพรรค (partylist)")
+            st_folium(_make_map("partylist"), height=480, use_container_width=True, key="map_partylist")
+        st.caption("จุดสี = พรรคที่ชนะในแต่ละตำบล (Tier A)")
 
     # ── Turnout bar chart (always shown) ─────────────────────────
     st.markdown("### อัตราผู้ใช้สิทธิ์แยกตามตำบล")
@@ -392,37 +463,24 @@ def render(
     st.divider()
 
     # ── Winner per subdistrict table ──────────────────────────────
-    st.markdown("### ผู้ชนะต่อตำบล (บัตรเขต, Tier A)")
-    winner_tbl = sub_stats[
-        [
-            "dist_clean",
-            "sub_clean",
-            "winner_party",
-            "winner_name",
-            "winner_votes",
-            "turnout_rate",
-        ]
-    ].copy()
-    winner_tbl = winner_tbl.dropna(subset=["winner_party"]).sort_values(
-        "winner_votes", ascending=False
-    )
-    winner_tbl["turnout_rate"] = winner_tbl["turnout_rate"].map(
-        lambda x: f"{x:.1%}" if pd.notna(x) else "–"
-    )
-    st.dataframe(
-        winner_tbl.rename(
-            columns={
-                "dist_clean": "อำเภอ",
-                "sub_clean": "ตำบล",
-                "winner_party": "พรรคผู้ชนะ",
-                "winner_name": "ชื่อผู้ชนะ",
-                "winner_votes": "คะแนน",
-                "turnout_rate": "อัตราผู้ใช้สิทธิ์",
-            }
-        ),
-        width="stretch",
-        height=350,
-    )
+    st.markdown("### ผู้ชนะต่อตำบล (Tier A)")
+    col_d, col_pl = st.columns(2)
+
+    def _winner_table(col, party_col, name_col, votes_col, title):
+        tbl = sub_stats[["dist_clean", "sub_clean", party_col, name_col, votes_col]].copy()
+        tbl = tbl.dropna(subset=[party_col]).sort_values(votes_col, ascending=False)
+        with col:
+            st.markdown(f"**{title}**")
+            st.dataframe(
+                tbl.rename(columns={
+                    "dist_clean": "อำเภอ", "sub_clean": "ตำบล",
+                    party_col: "พรรค", name_col: "ชื่อ", votes_col: "คะแนน",
+                }),
+                use_container_width=True, height=350,
+            )
+
+    _winner_table(col_d, "winner_party", "winner_name", "winner_votes", "บัตรเขต (เลือกคน)")
+    _winner_table(col_pl, "pl_winner_party", "pl_winner_name", "pl_winner_votes", "บัตรบัญชีรายชื่อ (เลือกพรรค)")
 
     st.divider()
 
