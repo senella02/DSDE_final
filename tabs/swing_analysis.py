@@ -85,7 +85,7 @@ def plot_swing(df_2023, df_2026, party_colors, mode="district"):
 
     max_parties = len(df_compare)
     
-    st.subheader(f'เปรียบเทียบคะแนน - {mode.upper()}')
+    st.subheader(f'เปรียบเทียบคะแนนระหว่างปี 2023 กับ 2026 - {mode.upper()}')
     
     col1, col2 = st.columns(2)
     
@@ -194,7 +194,7 @@ def show_turnout_metrics(records, df_ballot_2023, mode):
     pct_novote_26 = calc_pct(total_novote_26, total_actual_26)
 
 
-    st.subheader(f"สถิติการใช้สิทธิ - {mode.upper()}")
+    st.subheader(f"สถิติการใช้สิทธิระหว่างปี 2023 กับ 2026 - {mode.upper()}")
     
     col1, col2, col3, col4 = st.columns(4)
     
@@ -239,3 +239,13 @@ def render(records, candidates, pages, official):
     show_turnout_metrics(records, df_ballot_2023, mode=view_mode.lower())
     st.space(12)
     plot_swing(df_old, df_2026, lib.PALETTE, mode=view_mode.lower())
+    
+    with st.expander("🔗 แหล่งที่มาของข้อมูลปี 2023 (Data Sources)"):
+        st.write("ข้อมูลเปรียบเทียบผลการเลือกตั้งปี 2566 รวบรวมและอ้างอิงจาก:")
+        col_ref1, col_ref2 = st.columns(2)
+        with col_ref1:
+            st.markdown("- [Voice TV - Vote 66](https://vote66.voicetv.co.th/)")
+            st.markdown("- [WorkpointToday - Vote 66](https://vote66.workpointtoday.com/)")
+        with col_ref2:
+            st.markdown("- [The Standard - Election 2566](https://election2566.thestandard.co/)")
+            st.markdown("- [Wikipedia - การเลือกตั้ง นครราชสีมา เขต 5 (2566)](https://th.wikipedia.org/wiki/%E0%B8%88%E0%B8%B1%E0%B8%87%E0%B8%AB%E0%B8%A7%E0%B8%B1%E0%B8%94%E0%B8%99%E0%B8%84%E0%B8%A3%E0%B8%A3%E0%B8%B2%E0%B8%8A%E0%B8%AA%E0%B8%B5%E0%B8%A1%E0%B8%B2%E0%B9%83%E0%B8%99%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B9%80%E0%B8%A5%E0%B8%B7%E0%B8%AD%E0%B8%81%E0%B8%95%E0%B8%B1%E0%B9%89%E0%B8%87%E0%B8%AA%E0%B8%A1%E0%B8%B2%E0%B8%8A%E0%B8%B4%E0%B8%81%E0%B8%AA%E0%B8%A0%E0%B8%B2%E0%B8%9C%E0%B8%B9%E0%B9%89%E0%B9%81%E0%B8%97%E0%B8%99%E0%B8%A3%E0%B8%B2%E0%B8%A9%E0%B8%8E%E0%B8%A3%E0%B9%84%E0%B8%97%E0%B8%A2%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B8%97%E0%B8%B1%E0%B9%88%E0%B8%A7%E0%B9%84%E0%B8%9B_%E0%B8%9E.%E0%B8%A8._2566#%E0%B9%80%E0%B8%82%E0%B8%95_5)")

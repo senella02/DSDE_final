@@ -198,10 +198,12 @@ def plot_advance_vs_election_day(df_advance, df_election, party_colors):
         st.plotly_chart(fig_comp, width='stretch')
 
 def show_executive_summary_table(df_candidates):
-    st.subheader("ตารางสรุปพฤติกรรมการโหวตรายพรรค (Executive Summary)")
+    st.subheader("📋 ตารางสรุปพฤติกรรมการโหวตรายพรรค (Executive Summary)")
     
     df_grouped = df_candidates.groupby(['party', 'ballot_type'])['votes'].sum().reset_index()
-    df_pivot = pd.pivot_table(df_grouped, index='party', columns='ballot_type', values='votes', aggfunc='sum').fillna(0).reset_index()
+    df_pivot = pd.pivot_table(
+        df_grouped, index='party', columns='ballot_type', values='votes', aggfunc='sum'
+    ).fillna(0).reset_index()
     
     for col in ['district', 'partylist']:
         if col not in df_pivot.columns: df_pivot[col] = 0
@@ -210,30 +212,58 @@ def show_executive_summary_table(df_candidates):
     df_pivot['gap'] = df_pivot['district'] - df_pivot['partylist']
     
     def analyze_behavior(gap, total):
-        if total == 0: return "-"
+        if total == 0: return "ไม่มีข้อมูล"
         pct_diff = abs(gap) / total
         if pct_diff < 0.05:
-            return "⚖️ โหวตควบ (พรรคและเขตไปคู่กัน)"
+            return "⚖️ เลือกพรรคเดียวทั้งสองใบ (Straight-Ticket)"
         elif gap > 0:
-            return "👤 เน้นเลือกคน (เขต > พรรค)"
+            return "👤 นิยมตัวบุคคล (Candidate-Centric)"
         else:
-            return "🚩 เน้นเลือกพรรค (พรรค > เขต)"
+            return "🚩 นิยมพรรค (Party-Centric)"
 
     df_pivot['behavior'] = df_pivot.apply(lambda row: analyze_behavior(row['gap'], row['total']), axis=1)
     
-    df_pivot = df_pivot.sort_values(by='total', ascending=False).head(10) # เอาแค่ Top 10
+    col1, col2 = st.columns(2)
     
-    df_show = df_pivot[['party', 'district', 'partylist', 'behavior']].copy()
-    df_show.columns = ['พรรคการเมือง', 'คะแนน สส.เขต', 'คะแนน สส.บัญชีรายชื่อ', 'วิเคราะห์พฤติกรรม (Split-Ticket)']
+    with col1:
+        behavior_options = [
+            "แสดงทั้งหมด", 
+            "⚖️ เลือกพรรคเดียวทั้งสองใบ (Straight-Ticket)", 
+            "👤 นิยมตัวบุคคล (Candidate-Centric)", 
+            "🚩 นิยมพรรค (Party-Centric)"
+        ]
+        selected_behavior = st.selectbox("กรองตามพฤติกรรมการลงคะแนน:", behavior_options)
+        
+    with col2:
+        all_parties = sorted(df_pivot['party'].unique().tolist())
+        selected_parties = st.multiselect("ค้นหาพรรคการเมือง:", all_parties)
+
+    df_filtered = df_pivot.copy()
     
-    st.dataframe(
-        df_show.style.format({
-            "คะแนน สส.เขต": "{:,.0f}",
-            "คะแนน สส.บัญชีรายชื่อ": "{:,.0f}"
-        }),
-        width='content',
-        hide_index=True
-    )
+    if selected_behavior != "แสดงทั้งหมด":
+        df_filtered = df_filtered[df_filtered['behavior'] == selected_behavior]
+        
+    if selected_parties:
+        df_filtered = df_filtered[df_filtered['party'].isin(selected_parties)]
+
+    df_filtered = df_filtered.sort_values(by='total', ascending=False)
+    
+    df_show = df_filtered[['party', 'district', 'partylist', 'behavior']].copy()
+    df_show.columns = ['พรรคการเมือง', 'คะแนน สส.เขต', 'คะแนน สส.บัญชีรายชื่อ', 'วิเคราะห์รูปแบบการโหวต']
+    
+    if df_show.empty:
+        st.warning("❌ ไม่พบข้อมูลที่ตรงตามเงื่อนไข")
+    else:
+        st.dataframe(
+            df_show.style.format({
+                "คะแนน สส.เขต": "{:,.0f}",
+                "คะแนน สส.บัญชีรายชื่อ": "{:,.0f}"
+            }),
+            use_container_width=True,
+            hide_index=True
+        )
+        
+        st.caption(f"แสดงข้อมูลทั้งหมด {len(df_show)} พรรค")
 
 
 def render(records: pd.DataFrame, candidates: pd.DataFrame, pages: pd.DataFrame, official: pd.DataFrame) -> None:
