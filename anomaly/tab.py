@@ -19,12 +19,11 @@ import plotly.express as px
 import streamlit as st
 
 from anomaly import run_all
-from lib import clean_subset, color, load_data
+from lib import clean_subset, load_data
 
 REPORTS_DIR = Path(__file__).parent.parent / "reports"
 
 _FLAG_COLS = [
-    "RULE_TURNOUT_BALLOT_MISMATCH",
     "RULE_PERFECT_TURNOUT",
     "RULE_ZERO_TOTAL_BALLOTS",
     "RULE_HIGH_VOID_RATE",
@@ -41,7 +40,6 @@ _FLAG_COLS = [
 _FLAG_TYPE = {c: ("Rule-based" if c.startswith("RULE_") else "Statistical") for c in _FLAG_COLS}
 
 _FLAG_LABEL = {
-    "RULE_TURNOUT_BALLOT_MISMATCH": "Turnout ≠ Ballots",
     "RULE_PERFECT_TURNOUT":         "100% Turnout",
     "RULE_ZERO_TOTAL_BALLOTS":      "Zero Total Ballots",
     "RULE_HIGH_VOID_RATE":          "High Void Rate",
@@ -97,12 +95,6 @@ def render(
     official: pd.DataFrame,
 ) -> None:
     st.header("Anomaly Detection")
-    st.caption(
-        "Identifies unusual electoral patterns in the ballot-count data. "
-        "**Rule-based** flags are deterministic; **statistical** flags are relative "
-        "to a baseline computed on Tier A (OCR-verified) records only. "
-        "A flag on a Tier B/C record may be an OCR artefact — verify the scan before drawing conclusions."
-    )
 
     # -----------------------------------------------------------------------
     # In-tab settings (expander keeps controls scoped to this tab only)
@@ -147,7 +139,7 @@ def render(
     # -----------------------------------------------------------------------
     # Section A — Metric cards
     # -----------------------------------------------------------------------
-    st.subheader("A · Summary")
+    st.subheader("Summary")
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Anomalous records", n_anomalous, f"{n_anomalous/n_total:.1%} of all")
     col2.metric("High-confidence (Tier A)", n_high_conf, f"{n_high_conf/n_total:.1%} of all")
@@ -160,7 +152,7 @@ def render(
     # -----------------------------------------------------------------------
     # Section B — Flag frequency + dominant-party breakdown
     # -----------------------------------------------------------------------
-    st.subheader("B · Flag frequency")
+    st.subheader("Flag frequency")
 
     freq = (
         pd.DataFrame({
@@ -181,34 +173,12 @@ def render(
     fig_freq.update_layout(legend_title_text="", height=420)
     st.plotly_chart(fig_freq, use_container_width=True)
 
-    # Dominant-party chart — uses lib.color() for the shared party palette
-    dom_flagged = flags[flags["STAT_PARTY_DOMINANCE"] & flags["dominant_party"].notna()]
-    if not dom_flagged.empty:
-        party_counts = (
-            dom_flagged.groupby("dominant_party")
-            .size()
-            .reset_index(name="stations")
-            .sort_values("stations", ascending=True)
-        )
-        party_counts["hex"] = party_counts["dominant_party"].apply(color)
-        _, dom_cap = clean_subset(flags, requires=["dominant_party"])
-
-        fig_dom = px.bar(
-            party_counts, x="stations", y="dominant_party", orientation="h",
-            color="dominant_party",
-            color_discrete_map=dict(zip(party_counts["dominant_party"], party_counts["hex"])),
-            title=f"Dominant parties among STAT_PARTY_DOMINANCE flagged records<br><sub>{dom_cap}</sub>",
-            labels={"stations": "Flagged stations", "dominant_party": ""},
-        )
-        fig_dom.update_layout(showlegend=False, height=max(200, 40 * len(party_counts)))
-        st.plotly_chart(fig_dom, use_container_width=True)
-
     st.divider()
 
     # -----------------------------------------------------------------------
     # Section C — Scatter plot
     # -----------------------------------------------------------------------
-    st.subheader("C · Turnout vs void rate scatter")
+    st.subheader("Turnout vs void rate scatter")
 
     # clean_subset produces the standard gate caption for the chart title
     scatter_df, scatter_cap = clean_subset(flags, requires=["turnout_rate", "void_rate"])
@@ -233,102 +203,287 @@ def render(
 
     scatter_df["category"] = scatter_df.apply(_category, axis=1)
 
-    color_map = {
+    _CAT_COLOR = {
         "Anomaly (Tier A — high confidence)": "#E74C3C",
         "Anomaly (Tier B/C — verify OCR)":    "#F1948A",
         "Normal":                              "#AAAAAA",
     }
-    symbol_map = {
+    # circle-open for Tier B/C (in-range); solid triangle for all out-of-range
+    _CAT_SYMBOL_IN = {
         "Anomaly (Tier A — high confidence)": "circle",
         "Anomaly (Tier B/C — verify OCR)":    "circle-open",
         "Normal":                              "circle",
     }
 
-    fig_scatter = px.scatter(
-        scatter_df,
-        x="turnout_rate", y="void_rate",
-        color="category", symbol="category",
-        color_discrete_map=color_map,
-        symbol_map=symbol_map,
-        hover_data={
-            "station_display":       True,
-            "subdistrict_display":   True,
-            "ballot_type":           True,
-            "count_tier":            True,
-            "meta_tier":             True,
-            "anomaly_score":         True,
-            "flags_triggered":       True,
-            "dominant_party_display":True,
-            "imputed_display":       True,
-            "failure_modes":         True,
-            "turnout_rate":          ":.3f",
-            "void_rate":             ":.3f",
-            "category":              False,
-        },
+    SC_X_MAX, SC_Y_MAX = 10.0, 0.2
+
+    def _oor_symbol_scatter(row):
+        """Triangle pointing inward from the axis edge that was exceeded."""
+        if row["void_rate"] > SC_Y_MAX:
+            return "triangle-down"
+        return "triangle-left"   # turnout_rate > SC_X_MAX
+
+    import plotly.graph_objects as go_sc
+    fig_scatter = go_sc.Figure()
+
+    _HOVER_TMPL = (
+        "<b>%{customdata[0]}</b> · %{customdata[1]}<br>"
+        "Turnout: %{customdata[6]:.3f} · Void: %{customdata[7]:.3f}<br>"
+        "Tier: %{customdata[2]} · Meta: %{customdata[3]}<br>"
+        "Score: %{customdata[4]} · Flags: %{customdata[5]}<br>"
+        "Party: %{customdata[8]} · Imputed: %{customdata[9]}<br>"
+        "OCR failures: %{customdata[10]}<extra></extra>"
+    )
+    _CD_COLS = [
+        "station_display", "subdistrict_display", "count_tier", "meta_tier",
+        "anomaly_score", "flags_triggered",
+        "turnout_rate", "void_rate",
+        "dominant_party_display", "imputed_display", "failure_modes",
+    ]
+
+    for cat in ["Normal",
+                "Anomaly (Tier B/C — verify OCR)",
+                "Anomaly (Tier A — high confidence)"]:
+        sub = scatter_df[scatter_df["category"] == cat].copy()
+        if sub.empty:
+            continue
+
+        clr = _CAT_COLOR[cat]
+        in_range = (
+            sub["turnout_rate"].between(0, SC_X_MAX)
+            & sub["void_rate"].between(0, SC_Y_MAX)
+        )
+        sub_in  = sub[in_range]
+        sub_out = sub[~in_range].copy()
+
+        # In-range: circles (open for Tier B/C)
+        if not sub_in.empty:
+            fig_scatter.add_trace(go_sc.Scatter(
+                x=sub_in["turnout_rate"], y=sub_in["void_rate"],
+                mode="markers",
+                name=cat,
+                legendgroup=cat,
+                marker=dict(
+                    color=clr, size=9,
+                    symbol=_CAT_SYMBOL_IN[cat],
+                    line=dict(color=clr, width=1.5),
+                ),
+                hovertemplate=_HOVER_TMPL,
+                customdata=sub_in[_CD_COLS].values,
+            ))
+
+        # Out-of-range: clipped to axis edge, triangle pointing inward
+        if not sub_out.empty:
+            sub_out["_xc"] = sub_out["turnout_rate"].clip(0, SC_X_MAX)
+            sub_out["_yc"] = sub_out["void_rate"].clip(0, SC_Y_MAX)
+            sub_out["_sym"] = sub_out.apply(_oor_symbol_scatter, axis=1)
+            fig_scatter.add_trace(go_sc.Scatter(
+                x=sub_out["_xc"], y=sub_out["_yc"],
+                mode="markers",
+                name=f"{cat} (outside range)",
+                legendgroup=cat,
+                showlegend=True,
+                marker=dict(
+                    color=clr, size=11, opacity=0.75,
+                    symbol=sub_out["_sym"].tolist(),
+                    line=dict(color="white", width=1),
+                ),
+                hovertemplate=(
+                    "<b>Outside display range</b><br>"
+                    + _HOVER_TMPL
+                ),
+                customdata=sub_out[_CD_COLS].values,
+            ))
+
+    n_oor_sc = int((
+        ~scatter_df["turnout_rate"].between(0, SC_X_MAX)
+        | ~scatter_df["void_rate"].between(0, SC_Y_MAX)
+    ).sum())
+    oor_sc_note = f" · {n_oor_sc} point(s) outside range shown as ▼/◀ at axis edge" if n_oor_sc else ""
+
+    fig_scatter.update_layout(
         title=(
             f"Turnout rate vs void rate<br>"
-            f"<sub>{scatter_cap} • baseline: count∈{{A}} (stat flags)</sub>"
+            f"<sub>{scatter_cap} · baseline: count∈{{A}} (stat flags){oor_sc_note}</sub>"
         ),
-        labels={
-            "turnout_rate": "Turnout rate",
-            "void_rate":    "Void rate",
-            "category":     "Status",
-        },
+        xaxis=dict(title="Turnout rate", range=[0, SC_X_MAX]),
+        yaxis=dict(title="Void rate",    range=[0, SC_Y_MAX]),
+        legend_title_text="",
+        height=500,
     )
-    fig_scatter.update_traces(marker_size=8, marker_line_width=1.5)
-    fig_scatter.update_layout(height=500, legend_title_text="")
     st.plotly_chart(fig_scatter, use_container_width=True)
 
-    # Cluster view
-    with st.expander("Cluster view (exploratory pattern groups — not a definitive anomaly label)"):
-        cluster_plot = scatter_df.merge(
-            clusters[["file_id", "ballot_type", "cluster_label"]],
-            on=["file_id", "ballot_type"], how="left",
-        )
-        has_clusters = cluster_plot["cluster_label"].notna().any()
+    # -----------------------------------------------------------------------
+    # Station cluster view
+    # -----------------------------------------------------------------------
+    st.subheader("Station clusters")
 
-        if not has_clusters:
-            st.info("Clustering requires scikit-learn and at least 4 Tier-A / M0 records with all features present.")
-        else:
-            cluster_plot = cluster_plot[
-                cluster_plot["turnout_rate"].notna() & cluster_plot["void_rate"].notna()
-            ].copy()
-            cluster_plot["cluster_str"] = cluster_plot["cluster_label"].apply(
-                lambda x: f"Cluster {int(x)}" if pd.notna(x) else "Not clustered"
+    cluster_plot = scatter_df.merge(
+        clusters[["file_id", "ballot_type", "cluster_label"]],
+        on=["file_id", "ballot_type"], how="left",
+    )
+    has_clusters = cluster_plot["cluster_label"].notna().any()
+
+    if not has_clusters:
+        st.info("Clustering requires scikit-learn and at least 4 Tier-A / M0 records with all features present.")
+    else:
+        cluster_plot = cluster_plot[
+            cluster_plot["turnout_rate"].notna() & cluster_plot["void_rate"].notna()
+        ].copy()
+
+        _, clust_cap = clean_subset(
+            cluster_plot[cluster_plot["cluster_label"].notna()],
+            count_tier="A", meta_tier=["M0"],
+        )
+
+        # --- Compute short descriptive name for each cluster ---
+        def _cluster_name(lbl, sub):
+            if len(sub) == 1:
+                return f"Isolated Outlier (k={lbl})"
+            mt = sub["turnout_rate"].mean()
+            mv = sub["void_rate"].mean()
+            if mt > 1.0:
+                t_desc = "OCR-Error Turnout"
+            elif mt > 0.75:
+                t_desc = "High Turnout"
+            elif mt > 0.55:
+                t_desc = "Average Turnout"
+            else:
+                t_desc = "Low Turnout"
+            if mv > 0.12:
+                v_desc = "High Void"
+            elif mv > 0.05:
+                v_desc = "Moderate Void"
+            else:
+                v_desc = "Low Void"
+            return f"{t_desc} · {v_desc} (k={lbl})"
+
+        unique_labels = sorted(
+            cluster_plot["cluster_label"].dropna().unique().astype(int)
+        )
+
+        # Plotly default qualitative palette (circles only)
+        _PLOTLY_COLORS = ["#636EFA", "#EF553B", "#00CC96",
+                           "#AB63FA", "#FFA15A", "#19D3F3"]
+
+        # Axis display bounds
+        X_MIN, X_MAX = 0.4, 1.0
+        Y_MIN, Y_MAX = 0.0, 0.2
+
+        import plotly.graph_objects as go_mod
+        fig_clust = go_mod.Figure()
+
+        # --- Not-clustered: split into in-range and out-of-range ---
+        nc = cluster_plot[cluster_plot["cluster_label"].isna()].copy()
+        if not nc.empty:
+            in_range = (
+                nc["turnout_rate"].between(X_MIN, X_MAX)
+                & nc["void_rate"].between(Y_MIN, Y_MAX)
             )
-            _, clust_cap = clean_subset(
-                cluster_plot[cluster_plot["cluster_label"].notna()],
-                count_tier="A", meta_tier=["M0"],
-            )
-            fig_clust = px.scatter(
-                cluster_plot,
-                x="turnout_rate", y="void_rate",
-                color="cluster_str",
-                hover_data={
-                    "station_display":        True,
-                    "ballot_type":            True,
-                    "count_tier":             True,
-                    "meta_tier":              True,
-                    "dominant_party_display": True,
-                    "imputed_display":        True,
-                },
-                title=(
-                    f"Station clusters (KMeans, k chosen by silhouette)<br>"
-                    f"<sub>fitted: {clust_cap} • greyed = outside fitting subset</sub>"
+            nc_in  = nc[in_range]
+            nc_out = nc[~in_range].copy()
+
+            # In-range not-clustered: grey dots, semi-transparent
+            if not nc_in.empty:
+                fig_clust.add_trace(go_mod.Scatter(
+                    x=nc_in["turnout_rate"], y=nc_in["void_rate"],
+                    mode="markers",
+                    name="Outside fitting subset",
+                    legendgroup="nc",
+                    marker=dict(color="#BBBBBB", size=7, opacity=0.45,
+                                symbol="circle"),
+                    hovertemplate=(
+                        "<b>Outside fitting subset</b> · %{customdata[0]}<br>"
+                        "Turnout: %{x:.3f} · Void: %{y:.3f}<br>"
+                        "Tier: %{customdata[1]} · Meta: %{customdata[2]}"
+                        "<extra></extra>"
+                    ),
+                    customdata=nc_in[["station_display","count_tier","meta_tier"]].values,
+                ))
+
+            # Out-of-range not-clustered: clipped to axis boundary, triangle
+            # pointing toward the interior so users know the real value is beyond the edge
+            if not nc_out.empty:
+                nc_out["_xc"] = nc_out["turnout_rate"].clip(X_MIN, X_MAX)
+                nc_out["_yc"] = nc_out["void_rate"].clip(Y_MIN, Y_MAX)
+
+                def _oor_symbol(row):
+                    if row["void_rate"] > Y_MAX:
+                        return "triangle-down"
+                    if row["turnout_rate"] < X_MIN:
+                        return "triangle-right"
+                    return "triangle-left"
+
+                nc_out["_sym"] = nc_out.apply(_oor_symbol, axis=1)
+                fig_clust.add_trace(go_mod.Scatter(
+                    x=nc_out["_xc"], y=nc_out["_yc"],
+                    mode="markers",
+                    name="Outside display range",
+                    legendgroup="nc",
+                    showlegend=True,
+                    marker=dict(
+                        color="#BBBBBB", opacity=0.6, size=9,
+                        symbol=nc_out["_sym"].tolist(),
+                        line=dict(color="#888888", width=1),
+                    ),
+                    hovertemplate=(
+                        "<b>Outside display range</b> · %{customdata[0]}<br>"
+                        "Actual turnout: %{customdata[3]:.3f} · "
+                        "Actual void: %{customdata[4]:.3f}<br>"
+                        "Tier: %{customdata[1]} · Meta: %{customdata[2]}"
+                        "<extra></extra>"
+                    ),
+                    customdata=nc_out[[
+                        "station_display","count_tier","meta_tier",
+                        "turnout_rate","void_rate",
+                    ]].values,
+                ))
+
+        # --- One trace per cluster: circle dots, Plotly default colors ---
+        for i, lbl in enumerate(unique_labels):
+            sub = cluster_plot[cluster_plot["cluster_label"] == lbl]
+            name = _cluster_name(lbl, sub)
+            clr  = _PLOTLY_COLORS[i % len(_PLOTLY_COLORS)]
+            fig_clust.add_trace(go_mod.Scatter(
+                x=sub["turnout_rate"], y=sub["void_rate"],
+                mode="markers",
+                name=name,
+                marker=dict(color=clr, symbol="circle", size=10,
+                            line=dict(color="white", width=1)),
+                hovertemplate=(
+                    f"<b>{name}</b> · %{{customdata[0]}}<br>"
+                    "Turnout: %{x:.3f} · Void: %{y:.3f}<br>"
+                    "Tier: %{customdata[1]} · Party: %{customdata[2]}<br>"
+                    "Imputed: %{customdata[3]}<extra></extra>"
                 ),
-                labels={"turnout_rate": "Turnout rate", "void_rate": "Void rate",
-                        "cluster_str": "Cluster"},
-            )
-            fig_clust.update_traces(marker_size=8)
-            fig_clust.update_layout(height=460)
-            st.plotly_chart(fig_clust, use_container_width=True)
+                customdata=sub[[
+                    "station_display","count_tier",
+                    "dominant_party_display","imputed_display",
+                ]].values,
+            ))
+
+        n_oor = int((~nc["turnout_rate"].between(X_MIN, X_MAX)
+                     | ~nc["void_rate"].between(Y_MIN, Y_MAX)).sum()) if not nc.empty else 0
+        oor_note = f" · {n_oor} outside-range point(s) shown as ▼/▶/◀ at axis edge" if n_oor else ""
+
+        fig_clust.update_layout(
+            title=(
+                f"Station clusters (KMeans, k chosen by silhouette)<br>"
+                f"<sub>fitted: {clust_cap}{oor_note}</sub>"
+            ),
+            xaxis=dict(title="Turnout rate", range=[X_MIN, X_MAX]),
+            yaxis=dict(title="Void rate",    range=[Y_MIN, Y_MAX]),
+            legend_title="",
+            height=500,
+        )
+        st.plotly_chart(fig_clust, use_container_width=True)
 
     st.divider()
 
     # -----------------------------------------------------------------------
     # Section D — Detail table
     # -----------------------------------------------------------------------
-    st.subheader("D · Anomalous records detail")
+    st.subheader("Anomalous records detail")
 
     if not show_low_tier:
         table_df, table_cap = clean_subset(

@@ -12,7 +12,6 @@ import pandas as pd
 
 from lib import load_data as _load_data
 from .rules import (
-    rule_turnout_ballot_mismatch,
     rule_perfect_turnout,
     rule_zero_total_ballots,
     rule_high_void_rate,
@@ -29,7 +28,6 @@ DATA_DIR = _HERE / "data"
 REPORTS_DIR = _HERE / "reports"
 
 _FLAG_COLS = [
-    "RULE_TURNOUT_BALLOT_MISMATCH",
     "RULE_PERFECT_TURNOUT",
     "RULE_ZERO_TOTAL_BALLOTS",
     "RULE_HIGH_VOID_RATE",
@@ -80,7 +78,6 @@ def run_all(
     flags["dominant_party"] = compute_dominant_party_name(records, candidates).values
 
     # --- Rule checks ---
-    flags["RULE_TURNOUT_BALLOT_MISMATCH"] = rule_turnout_ballot_mismatch(records)
     flags["RULE_PERFECT_TURNOUT"] = rule_perfect_turnout(records)
     flags["RULE_ZERO_TOTAL_BALLOTS"] = rule_zero_total_ballots(records)
     flags["RULE_HIGH_VOID_RATE"] = rule_high_void_rate(records, cfg["high_void_rate"])

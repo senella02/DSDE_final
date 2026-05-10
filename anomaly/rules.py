@@ -36,14 +36,6 @@ def _join_to_records(records: pd.DataFrame, flag_df: pd.DataFrame) -> pd.Series:
 # Ballot arithmetic rules
 # ---------------------------------------------------------------------------
 
-def rule_turnout_ballot_mismatch(records: pd.DataFrame) -> pd.Series:
-    """voter_turnout and total_ballots differ by more than 1."""
-    vt = records["voter_turnout"]
-    tb = records["total_ballots"]
-    both = vt.notna() & tb.notna()
-    return (both & ((vt - tb).abs() > 1)).fillna(False)
-
-
 def rule_perfect_turnout(records: pd.DataFrame) -> pd.Series:
     """turnout_rate == 1.0 exactly (100% — near-impossible in practice)."""
     tr = records["turnout_rate"]
