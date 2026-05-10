@@ -154,7 +154,7 @@ Usage in any tab — ours or hers:
 ```python
 sub, cap = clean_subset(records, count_tier="AB", requires=["voter_turnout","eligible_voters"])
 fig = px.histogram(sub, x="turnout_rate", title=f"Turnout<br><sub>{cap}</sub>")
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, width='stretch')
 ```
 
 That's the entire methodology contract. If you can't write the gate as a `clean_subset()` call, you shouldn't be plotting yet.
@@ -239,7 +239,7 @@ These are non-negotiable so the app reads as one product, not five:
 
 - Every chart title carries the gate caption: `f"{title}<br><sub>{cap}</sub>"`.
 - Every party color comes from `lib.color()`.
-- Every plot uses `st.plotly_chart(fig, use_container_width=True)`.
+- Every plot uses `st.plotly_chart(fig, width='stretch')`.
 - Imputed rows get a hatched/striped marker or a "(imputed)" tooltip note.
 - Hover tooltips include `count_tier`, `meta_tier`, `failure_modes` wherever the row identity matters.
 - One `render(records, candidates, pages)` function per tab file. No top-level Streamlit calls.

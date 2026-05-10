@@ -1,31 +1,49 @@
 """
-app.py — DSDE Election OCR · Streamlit entry point.
+app.py — DSDE Election OCR Analysis
+Streamlit entry point: loads shared data once, routes to 5 tabs.
 
-Loads all four parquets once (cached), then routes to per-tab render functions.
-Each tab module exposes a single render(records, candidates, pages, official) function.
+Tabs:
+  1. Overview        — headline KPIs, tier composition, map placeholder
+  2. Data Quality    — failure modes, OCR accuracy vs official, spot-check queue
+  3. EDA             — distributions (full vs valid) + rankings
+  4. Geospatial      — choropleth turnout, winner markers, area analysis
+  5. Anomaly         — rule-based + statistical anomaly detection
 """
+
 import streamlit as st
 
 from lib import load_data
-from tabs import overview, data_quality, eda
+from tabs import data_quality, eda, geo, overview
 from anomaly import tab as anomaly_tab
 
 st.set_page_config(
-    page_title="DSDE Election OCR",
-    page_icon="🗳",
+    page_title="DSDE Election OCR — นครราชสีมา เขต 5",
+    page_icon="🗳️",
     layout="wide",
 )
 
+st.title("🗳️ การวิเคราะห์ข้อมูลการเลือกตั้ง — นครราชสีมา เขต 5")
+st.caption("ข้อมูล: บัญชีรายงานผลการนับคะแนน (OCR) · 606 ระเบียน · 3 อำเภอ")
+
 records, candidates, pages, official = load_data()
 
-tab_specs = [
-    ("Overview",     overview.render),
-    ("Data Quality", data_quality.render),
-    ("EDA",          eda.render),
-    ("Anomaly",      anomaly_tab.render),
-]
+t1, t2, t3, t4, t5 = st.tabs(
+    [
+        "📊 Overview",
+        "🔍 Data Quality",
+        "📈 EDA",
+        "🗺️ Geospatial",
+        "🚨 Anomaly",
+    ]
+)
 
-tabs = st.tabs([name for name, _ in tab_specs])
-for tab, (_, render) in zip(tabs, tab_specs):
-    with tab:
-        render(records, candidates, pages, official)
+with t1:
+    overview.render(records, candidates, pages, official)
+with t2:
+    data_quality.render(records, candidates, pages, official)
+with t3:
+    eda.render(records, candidates, pages, official)
+with t4:
+    geo.render(records, candidates, pages, official)
+with t5:
+    anomaly_tab.render(records, candidates, pages, official)

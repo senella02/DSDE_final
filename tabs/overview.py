@@ -1,8 +1,6 @@
-"""tabs/overview.py — placeholder. Replace with full implementation."""
-import pandas as pd
 import streamlit as st
+import pandas as pd
 
 
-def render(records: pd.DataFrame, candidates: pd.DataFrame,
-           pages: pd.DataFrame, official: pd.DataFrame) -> None:
-    st.info("Overview tab — implementation in progress.")
+def render(records: pd.DataFrame, candidates: pd.DataFrame, pages: pd.DataFrame, official: pd.DataFrame) -> None:
+    st.info("🚧 Overview tab — placeholder (assigned to another team member)")
