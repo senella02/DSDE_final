@@ -267,7 +267,13 @@ def show_executive_summary_table(df_candidates):
 
 
 def render(records: pd.DataFrame, candidates: pd.DataFrame, pages: pd.DataFrame, official: pd.DataFrame) -> None:
-    df_2026, caption = clean_subset(candidates, count_tier=["A", "C"])
+    is_outlier = (candidates['party'] == 'เพื่อชาติไทย') & \
+                 (candidates['ballot_type'] == 'partylist') & \
+                 (candidates['count_tier'] == 'B')
+    
+    candidates = candidates[~is_outlier]
+    
+    df_2026, caption = clean_subset(candidates, count_tier=["A", "B", "C"])
     st.info(f"💡 {caption}")
     
     plot_split_ticket(df_2026, lib.PALETTE)

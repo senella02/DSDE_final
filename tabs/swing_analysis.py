@@ -100,15 +100,15 @@ def plot_swing(df_2023, df_2026, party_colors, mode="district"):
     
     df_compare = df_compare.head(top_n)
 
-    # st.subheader(f"📋 ตารางข้อมูลเปรียบเทียบ ({mode.upper()}) - Top {top_n}")
-    # st.dataframe(
-    #     df_compare.style.format({
-    #         "score_2026": "{:,.0f}",
-    #         "score_2023": "{:,.0f}",
-    #         "diff": "{:+,.0f}"
-    #     }),
-    #     use_container_width=True
-    # )
+    st.subheader(f"📋 ตารางข้อมูลเปรียบเทียบ ({mode.upper()}) - Top {top_n}")
+    st.dataframe(
+        df_compare.style.format({
+            "score_2026": "{:,.0f}",
+            "score_2023": "{:,.0f}",
+            "diff": "{:+,.0f}"
+        }),
+        use_container_width=True
+    )
 
     y_parties = df_compare['party'].astype(str).tolist()
     x_2023 = df_compare['score_2023'].tolist()
@@ -173,10 +173,10 @@ def show_turnout_metrics(records, df_ballot_2023, mode):
             df_bal_23 = df_ballot_2023
 
         total_eligible_23 = df_bal_23['eligible_voters'].sum() if 'eligible_voters' in df_bal_23.columns else 0
-        total_actual_23 = df_bal_23['actual_voters'].sum() if 'actual_voters' in df_bal_23.columns else 0
-        total_valid_23 = df_bal_23['valid_ballots'].sum() if 'valid_ballots' in df_bal_23.columns else 0
-        total_invalid_23 = df_bal_23['invalid_ballots'].sum() if 'invalid_ballots' in df_bal_23.columns else 0
-        total_novote_23 = df_bal_23['no_vote_ballots'].sum() if 'no_vote_ballots' in df_bal_23.columns else 0
+        total_actual_23 = df_bal_23['voter_turnout'].sum() if 'voter_turnout' in df_bal_23.columns else 0
+        total_valid_23 = df_bal_23['valid_votes'].sum() if 'valid_votes' in df_bal_23.columns else 0
+        total_invalid_23 = df_bal_23['void_ballots'].sum() if 'void_ballots' in df_bal_23.columns else 0
+        total_novote_23 = df_bal_23['spoiled_ballots'].sum() if 'spoiled_ballots' in df_bal_23.columns else 0
     except Exception as e:
         st.warning(f"⚠️ รูปแบบไฟล์ json ของปี 2023 ไม่ตรงตามที่คาดหวัง: {e}")
         return
@@ -214,6 +214,58 @@ def show_turnout_metrics(records, df_ballot_2023, mode):
         delta_novote = pct_novote_26 - pct_novote_23
         st.metric(label="🛑 งดออกเสียง", value=f"{pct_novote_26:.1f}%", delta=f"{delta_novote:+.1f}%", delta_color="inverse")
 
+def debug_missing_turnout(records):
+    st.subheader("🕵️‍♂️ ตรวจสอบความผิดปกติของข้อมูล Partylist (Turnout ต่ำ)")
+    
+    # 1. กรองเอาเฉพาะข้อมูล Partylist
+    df_party = records[records['ballot_type'] == 'partylist'].copy()
+    
+    # ==========================================
+    # 🆕 ส่วนที่เพิ่มใหม่: สรุปผลรวมของ Partylist ทั้งหมด
+    # ==========================================
+    st.markdown("**📊 ตารางสรุปผลรวม (Sum) ของข้อมูล Partylist ทั้งหมดในระบบ:**")
+    cols_to_sum = ['eligible_voters', 'voter_turnout', 'valid_votes', 'void_ballots', 'spoiled_ballots']
+    existing_cols = [c for c in cols_to_sum if c in df_party.columns]
+    
+    if existing_cols:
+        # คำนวณผลรวม (ข้ามค่า Null ไป)
+        sum_data = {col: df_party[col].sum(skipna=True) for col in existing_cols}
+        df_sum = pd.DataFrame([sum_data])
+        
+        # แสดงเป็นตารางที่ใส่ลูกน้ำ (Comma) ให้ตัวเลขดูง่าย
+        st.dataframe(df_sum.style.format("{:,.0f}"), use_container_width=True)
+        
+        # เช็ค% แบบเร็วๆ ให้ดูเลย
+        if 'voter_turnout' in sum_data and 'eligible_voters' in sum_data and sum_data['eligible_voters'] > 0:
+            raw_pct = (sum_data['voter_turnout'] / sum_data['eligible_voters']) * 100
+            st.info(f"💡 คำนวณ Turnout จากผลรวมดิบ: ({sum_data['voter_turnout']:,.0f} / {sum_data['eligible_voters']:,.0f}) = **{raw_pct:.1f}%**")
+    st.divider()
+    # ==========================================
+
+    # 2. หาแถวที่มีปัญหา (ผู้มีสิทธิ หรือ ผู้มาใช้สิทธิ เป็น 0 หรือค่าว่าง)
+    mask_missing = (
+        (df_party['eligible_voters'].isnull()) | (df_party['eligible_voters'] == 0) |
+        (df_party['voter_turnout'].isnull()) | (df_party['voter_turnout'] == 0)
+    )
+    
+    df_missing = df_party[mask_missing]
+    
+    # 3. แสดงผลเป็นตาราง
+    if df_missing.empty:
+        st.success("✅ ไม่พบแถวที่ค่า voter_turnout หรือ eligible_voters เป็น 0 (ปัญหาเกิดจากข้อมูลที่สกัดมาได้มีจำนวนแถวน้อยกว่า District)")
+        
+        # ลองเทียบจำนวนแถวดู
+        count_district = len(records[records['ballot_type'] == 'district'])
+        count_party = len(df_party)
+        st.info(f"📋 เปรียบเทียบจำนวนข้อมูล (Rows): District = **{count_district} แถว** | Partylist = **{count_party} แถว**")
+        
+    else:
+        st.warning(f"⚠️ พบข้อมูลที่ยอดผู้ใช้สิทธิหายไป (voter_turnout/eligible_voters = 0 หรือค่าว่าง) จำนวน **{len(df_missing)} แถว** จากทั้งหมด {len(df_party)} แถว")
+        
+        # ดึงคอลัมน์ที่จำเป็นมาแสดง
+        cols_to_show = [c for c in records.columns if c not in ['created_at', 'updated_at']]
+        st.dataframe(df_missing[cols_to_show], use_container_width=True)
+
 def render(records, candidates, pages, official):
     # Load data from 2023
     df_district_2023 = pd.read_csv("data/korat2023_data/district_2023.csv")
@@ -223,7 +275,13 @@ def render(records, candidates, pages, official):
     df_district_2023['party'] = df_district_2023['party'].map(PARTY_MAPPING).fillna(df_district_2023['party'])
     df_partylist_2023['party'] = df_partylist_2023['party'].map(PARTY_MAPPING).fillna(df_partylist_2023['party'])
     
-    df_2026, caption = clean_subset(candidates, count_tier=["A", "C"])
+    is_outlier = (candidates['party'] == 'เพื่อชาติไทย') & \
+                 (candidates['ballot_type'] == 'partylist') & \
+                 (candidates['count_tier'] == 'B')
+    
+    candidates = candidates[~is_outlier]
+
+    df_2026, caption = clean_subset(candidates, count_tier=["A", "B", "C"])
     st.info(f"💡 {caption}")
     
     view_mode = st.radio(
@@ -249,3 +307,6 @@ def render(records, candidates, pages, official):
         with col_ref2:
             st.markdown("- [The Standard - Election 2566](https://election2566.thestandard.co/)")
             st.markdown("- [Wikipedia - การเลือกตั้ง นครราชสีมา เขต 5 (2566)](https://th.wikipedia.org/wiki/%E0%B8%88%E0%B8%B1%E0%B8%87%E0%B8%AB%E0%B8%A7%E0%B8%B1%E0%B8%94%E0%B8%99%E0%B8%84%E0%B8%A3%E0%B8%A3%E0%B8%B2%E0%B8%8A%E0%B8%AA%E0%B8%B5%E0%B8%A1%E0%B8%B2%E0%B9%83%E0%B8%99%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B9%80%E0%B8%A5%E0%B8%B7%E0%B8%AD%E0%B8%81%E0%B8%95%E0%B8%B1%E0%B9%89%E0%B8%87%E0%B8%AA%E0%B8%A1%E0%B8%B2%E0%B8%8A%E0%B8%B4%E0%B8%81%E0%B8%AA%E0%B8%A0%E0%B8%B2%E0%B8%9C%E0%B8%B9%E0%B9%89%E0%B9%81%E0%B8%97%E0%B8%99%E0%B8%A3%E0%B8%B2%E0%B8%A9%E0%B8%8E%E0%B8%A3%E0%B9%84%E0%B8%97%E0%B8%A2%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B8%97%E0%B8%B1%E0%B9%88%E0%B8%A7%E0%B9%84%E0%B8%9B_%E0%B8%9E.%E0%B8%A8._2566#%E0%B9%80%E0%B8%82%E0%B8%95_5)")
+            
+    with st.expander("🔍 ดูข้อมูลดิบที่มีปัญหา (Debug)"):
+        debug_missing_turnout(records)
