@@ -225,3 +225,5 @@ __marimo__/
 **/__pycache__/data/tha_admin3.geojson
 
 data/tha_admin3.geojson
+
+.vscode

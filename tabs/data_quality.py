@@ -65,6 +65,96 @@ def render(
     # ── Section A: Failure mode analysis ──────────────────────────────────
     st.subheader("A — Failure Mode Analysis")
 
+    # A0 — Good vs defect summary
+    tier_counts = records["count_tier"].value_counts().reindex(["A", "B", "C"], fill_value=0)
+    n_total = len(records)
+    n_a = int(tier_counts["A"])
+    n_b = int(tier_counts["B"])
+    n_c = int(tier_counts["C"])
+
+    col_m0, col_m1, col_m2, col_m3, col_m4 = st.columns(5)
+    col_m0.metric("Total Records", n_total)
+    col_m1.metric("Fully Good (A)", n_a, delta=f"{n_a/n_total*100:.1f}%", delta_color="off")
+    col_m2.metric("Partial (B)", n_b, delta=f"{n_b/n_total*100:.1f}%", delta_color="off")
+    col_m3.metric("Defect (C)", n_c, delta=f"{n_c/n_total*100:.1f}%", delta_color="off")
+    col_m4.metric("Any Defect (B+C)", n_b + n_c, delta=f"{(n_b+n_c)/n_total*100:.1f}%", delta_color="off")
+
+    st.caption(
+        "**Tier A** = ballot math valid + candidate sum valid (all checks pass). "
+        "**Tier B** = ballot math valid only. **Tier C** = ballot math fails."
+    )
+
+    pct_a = n_a / n_total * 100
+    pct_b = n_b / n_total * 100
+    pct_c = n_c / n_total * 100
+    pct_clean = (n_a + n_b) / n_total * 100
+
+    st.markdown(
+        f"**Summary:** Of the {n_total} OCR records, "
+        f"**{n_a} ({pct_a:.1f}%) are Tier A** — both ballot arithmetic and candidate vote sum check out. "
+        f"**{n_b} ({pct_b:.1f}%) are Tier B** — ballot totals are internally consistent but candidate-level sums deviate, "
+        f"meaning these records are usable for turnout and void/spoil rates but not per-candidate aggregates. "
+        f"**{n_c} ({pct_c:.1f}%) are Tier C** — fundamental ballot arithmetic fails; these records are flagged "
+        f"for spot-check and excluded from all quantitative analysis. "
+        f"Overall **{n_a + n_b} ({pct_clean:.1f}%) records pass the ballot-math gate (A+B)** and contribute to aggregate counts."
+    )
+
+    col_a0l, col_a0r = st.columns(2)
+
+    with col_a0l:
+        tier_df = pd.DataFrame({
+            "tier": ["A — Fully Good", "B — Partial", "C — Defect"],
+            "count": [n_a, n_b, n_c],
+            "key": ["A", "B", "C"],
+        })
+        fig_a0_pie = px.pie(
+            tier_df, names="tier", values="count",
+            title=f"Record Quality Distribution<br><sub>n={n_total}</sub>",
+            color="key",
+            color_discrete_map={"A": "#2ecc71", "B": "#f39c12", "C": "#e74c3c"},
+            hole=0.45,
+        )
+        fig_a0_pie.update_traces(textinfo="label+percent")
+        fig_a0_pie.update_layout(showlegend=False)
+        st.plotly_chart(fig_a0_pie, use_container_width=True)
+
+    with col_a0r:
+        grp = (
+            records.groupby(["ballot_type", "count_tier"])
+            .size()
+            .reset_index(name="count")
+        )
+        grp["count_tier"] = pd.Categorical(grp["count_tier"], categories=["A", "B", "C"], ordered=True)
+        grp = grp.sort_values(["ballot_type", "count_tier"])
+        fig_a0_grp = px.bar(
+            grp, x="ballot_type", y="count", color="count_tier", barmode="group",
+            title=f"Tier A/B/C by Ballot Type<br><sub>n={n_total}</sub>",
+            labels={"count": "# Records", "ballot_type": "Ballot Type", "count_tier": "Tier"},
+            color_discrete_map={"A": "#2ecc71", "B": "#f39c12", "C": "#e74c3c"},
+            text_auto=True,
+        )
+        fig_a0_grp.update_layout(legend_title_text="Tier")
+        st.plotly_chart(fig_a0_grp, use_container_width=True)
+
+    grp2 = (
+        records.groupby(["election_type", "count_tier"])
+        .size()
+        .reset_index(name="count")
+    )
+    grp2["count_tier"] = pd.Categorical(grp2["count_tier"], categories=["A", "B", "C"], ordered=True)
+    grp2 = grp2.sort_values(["election_type", "count_tier"])
+    fig_a0_grp2 = px.bar(
+        grp2, x="election_type", y="count", color="count_tier", barmode="group",
+        title=f"Tier A/B/C by Election Type<br><sub>n={n_total}</sub>",
+        labels={"count": "# Records", "election_type": "Election Type", "count_tier": "Tier"},
+        color_discrete_map={"A": "#2ecc71", "B": "#f39c12", "C": "#e74c3c"},
+        text_auto=True,
+    )
+    fig_a0_grp2.update_layout(legend_title_text="Tier")
+    st.plotly_chart(fig_a0_grp2, use_container_width=True)
+
+    st.divider()
+
     modes_lists = _parse_modes(records["failure_modes"])
     all_modes_flat = [m for lst in modes_lists for m in lst]
     unique_modes = sorted(set(all_modes_flat))
@@ -170,6 +260,51 @@ def render(
         .reset_index()
     )
     st.dataframe(cluster, width='stretch', hide_index=True)
+
+    # Subdistrict error rate analysis (normal records only — advance records have null subdistrict)
+    st.markdown("**Error Rate % by Subdistrict** — normal records only; advance records carry no subdistrict.")
+    sub_sd = records[records["subdistrict"].notna()].copy()
+    if not sub_sd.empty:
+        sd_grp = (
+            sub_sd.groupby("subdistrict")
+            .agg(
+                n_records=("failure_mode_count", "count"),
+                pct_any_failure=("failure_mode_count", lambda x: round((x > 0).mean() * 100, 1)),
+                pct_tier_b=("count_tier", lambda x: round((x == "B").mean() * 100, 1)),
+                pct_tier_c=("count_tier", lambda x: round((x == "C").mean() * 100, 1)),
+                avg_failures=("failure_mode_count", lambda x: round(x.mean(), 2)),
+            )
+            .reset_index()
+            .sort_values("pct_any_failure", ascending=False)
+        )
+        sd_melt = sd_grp.melt(
+            id_vars="subdistrict",
+            value_vars=["pct_any_failure", "pct_tier_b", "pct_tier_c"],
+            var_name="metric", value_name="pct",
+        )
+        sd_melt["metric"] = sd_melt["metric"].map({
+            "pct_any_failure": "Any failure",
+            "pct_tier_b": "Tier B (partial)",
+            "pct_tier_c": "Tier C (defect)",
+        })
+        fig_sd = px.bar(
+            sd_melt,
+            x="subdistrict", y="pct", color="metric", barmode="group",
+            title=f"Error Rate % by Subdistrict<br><sub>n={len(sub_sd)} normal records</sub>",
+            labels={"pct": "% of Records", "subdistrict": "Subdistrict", "metric": ""},
+            text_auto=True,
+            color_discrete_map={
+                "Any failure": "#e74c3c",
+                "Tier B (partial)": "#f39c12",
+                "Tier C (defect)": "#c0392b",
+            },
+        )
+        fig_sd.update_layout(xaxis_tickangle=-45, bargap=0.15)
+        fig_sd.update_traces(textposition="outside")
+        st.plotly_chart(fig_sd, use_container_width=True)
+        st.dataframe(sd_grp, use_container_width=True, hide_index=True)
+    else:
+        st.info("No subdistrict data available.")
 
     st.divider()
 

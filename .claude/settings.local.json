@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(conda run *)",
-      "Bash(Remove-Item *)"
-    ]
-  }
-}
