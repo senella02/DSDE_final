@@ -494,7 +494,8 @@ def render(
 
     # Turnout by area type
     area_turnout = (
-        sub_stats.groupby("area_type")
+        sub_stats[sub_stats["area_type"] != "other"]
+        .groupby("area_type")
         .agg(
             mean_turnout=("turnout_rate", "mean"),
             std_turnout=("turnout_rate", "std"),
@@ -514,25 +515,30 @@ def render(
     )
     st.plotly_chart(fig_area, width="stretch")
 
-    # Winner party distribution by area type
-    area_winner = sub_stats.dropna(subset=["winner_party"]).copy()
-    if len(area_winner) > 0:
-        aw = (
-            area_winner.groupby(["area_type", "winner_party"])
-            .size()
-            .reset_index(name="n")
-        )
-        fig_aw = px.bar(
+    # Winner party distribution by area type — district and partylist side-by-side
+    aw_base = sub_stats[sub_stats["area_type"] != "other"].copy()
+    col_aw1, col_aw2 = st.columns(2)
+
+    def _winner_area_chart(col, party_col: str, title: str) -> None:
+        df = aw_base.dropna(subset=[party_col])
+        if len(df) == 0:
+            return
+        aw = df.groupby(["area_type", party_col]).size().reset_index(name="n")
+        fig = px.bar(
             aw,
             x="area_type",
             y="n",
-            color="winner_party",
+            color=party_col,
             barmode="stack",
-            color_discrete_map={p: color(p) for p in aw["winner_party"]},
-            title="พรรคที่ชนะแยกตามประเภทพื้นที่",
-            labels={"area_type": "ประเภทพื้นที่", "n": "จำนวนตำบล", "winner_party": "พรรค"},
+            color_discrete_map={p: color(p) for p in aw[party_col]},
+            title=title,
+            labels={"area_type": "ประเภทพื้นที่", "n": "จำนวนตำบล", party_col: "พรรค"},
         )
-        st.plotly_chart(fig_aw, width="stretch")
+        with col:
+            st.plotly_chart(fig, use_container_width=True)
+
+    _winner_area_chart(col_aw1, "winner_party", "ส.ส.เขต — พรรคที่ชนะแยกตามพื้นที่")
+    _winner_area_chart(col_aw2, "pl_winner_party", "บัญชีรายชื่อ — พรรคที่ชนะแยกตามพื้นที่")
 
     # Party votes by area type — district and partylist shown side-by-side
     def _area_party_chart(ballot_type: str, cap_label: str) -> None:
@@ -550,6 +556,7 @@ def render(
         sc["area_type"] = sc["dist_clean"].apply(
             lambda d: AREA_TYPES.get(f"อำเภอ{d}", "other")
         )
+        sc = sc[sc["area_type"] != "other"]
         area_party = sc.groupby(["area_type", "party"])["votes"].sum().reset_index()
         top_p = area_party.groupby("party")["votes"].sum().nlargest(8).index.tolist()
         fig = px.bar(
@@ -573,28 +580,28 @@ def render(
     st.divider()
 
     # ── Policy analysis table ─────────────────────────────────────
-    st.markdown("### การวิเคราะห์นโยบายกับผลโหวต")
-    st.markdown("""
-| ประเภทพื้นที่ | อำเภอ | นโยบายที่คาดว่ามีผล | แนวโน้มพรรค | หมายเหตุ |
-|---|---|---|---|---|
-| เกษตรกรรม | โนนสูง, เฉลิมพระเกียรติ | ราคาสินค้าเกษตร, ประกันรายได้ชาวนา, สวัสดิการรัฐ | เพื่อไทย / ภูมิใจไทย | เกษตรกรตอบสนองต่อนโยบายอุดหนุนโดยตรง |
-| ท่องเที่ยว/ประวัติศาสตร์ | พิมาย | โครงสร้างพื้นฐานท่องเที่ยว, อนุรักษ์มรดกวัฒนธรรม | หลากหลาย | รายได้จากท่องเที่ยว — คะแนนกระจายมากกว่า |
+#     st.markdown("### การวิเคราะห์นโยบายกับผลโหวต")
+#     st.markdown("""
+# | ประเภทพื้นที่ | อำเภอ | นโยบายที่คาดว่ามีผล | แนวโน้มพรรค | หมายเหตุ |
+# |---|---|---|---|---|
+# | เกษตรกรรม | โนนสูง, เฉลิมพระเกียรติ | ราคาสินค้าเกษตร, ประกันรายได้ชาวนา, สวัสดิการรัฐ | เพื่อไทย / ภูมิใจไทย | เกษตรกรตอบสนองต่อนโยบายอุดหนุนโดยตรง |
+# | ท่องเที่ยว/ประวัติศาสตร์ | พิมาย | โครงสร้างพื้นฐานท่องเที่ยว, อนุรักษ์มรดกวัฒนธรรม | หลากหลาย | รายได้จากท่องเที่ยว — คะแนนกระจายมากกว่า |
 
-*การวิเคราะห์นี้ใช้ข้อมูล OCR ที่ผ่าน Tier A เท่านั้น ให้ระมัดระวังในการตีความ*
-""")
+# *การวิเคราะห์นี้ใช้ข้อมูล OCR ที่ผ่าน Tier A เท่านั้น ให้ระมัดระวังในการตีความ*
+# """)
 
     # ── Export map_data.geojson ───────────────────────────────────
-    st.divider()
-    st.markdown("### Export")
-    geojson_str = _export_map_data(sub_stats, features)
-    col1, col2 = st.columns(2)
-    col1.download_button(
-        "⬇️ ดาวน์โหลด map_data.geojson",
-        data=geojson_str,
-        file_name="map_data.geojson",
-        mime="application/json",
-    )
-    if col2.button("💾 บันทึก map_data.geojson ลงไฟล์"):
-        out_path = _HERE / "reports" / "map_data.geojson"
-        out_path.write_text(geojson_str, encoding="utf-8")
-        col2.success(f"บันทึกแล้วที่ {out_path}")
+    # st.divider()
+    # st.markdown("### Export")
+    # geojson_str = _export_map_data(sub_stats, features)
+    # col1, col2 = st.columns(2)
+    # col1.download_button(
+    #     "⬇️ ดาวน์โหลด map_data.geojson",
+    #     data=geojson_str,
+    #     file_name="map_data.geojson",
+    #     mime="application/json",
+    # )
+    # if col2.button("💾 บันทึก map_data.geojson ลงไฟล์"):
+    #     out_path = _HERE / "reports" / "map_data.geojson"
+    #     out_path.write_text(geojson_str, encoding="utf-8")
+    #     col2.success(f"บันทึกแล้วที่ {out_path}")
