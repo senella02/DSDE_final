@@ -1,0 +1,18 @@
+[
+  {
+    "ballot_type": "district",
+    "valid_votes": 95662,
+    "void_ballots": 4805,
+    "spoiled_ballots": 1658,
+    "eligible_voters": 132509,
+    "voter_turnout": 102125
+  },
+  {
+    "ballot_type": "partylist",
+    "valid_votes": 96231,
+    "void_ballots": 4876,
+    "spoiled_ballots": 1018,
+    "eligible_voters": 132503,
+    "voter_turnout": 96231
+  }
+]
