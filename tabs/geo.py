@@ -34,7 +34,7 @@ except ImportError:
 # ── Constants ─────────────────────────────────────────────────────────────────
 
 # Path to tha_admin3.geojson (in parent dir of DSDE_final/)
-_GEOJSON_PATH = _HERE.parent / "tha_admin3.geojson"
+_GEOJSON_PATH = _HERE / "data/tha_admin3.geojson"
 
 # Constituency 5 districts (without อำเภอ prefix — GeoJSON field names)
 _C5_DISTRICTS = {"โนนสูง", "พิมาย", "เฉลิมพระเกียรติ"}
@@ -111,8 +111,12 @@ def _subdistrict_stats(records: pd.DataFrame, candidates: pd.DataFrame) -> pd.Da
         lambda s: _strip_prefix(str(s) if pd.notna(s) else "", "อำเภอ")
     )
 
+    # Use district records only for turnout — district and partylist share the same
+    # eligible_voters/voter_turnout per station, so summing both would double-count.
+    rec_district = rec_norm[rec_norm["ballot_type"] == "district"]
+
     agg = (
-        rec_norm.groupby(["dist_clean", "sub_clean"])
+        rec_district.groupby(["dist_clean", "sub_clean"])
         .agg(
             eligible_voters=("eligible_voters", "sum"),
             voter_turnout=("voter_turnout", "sum"),
@@ -230,7 +234,9 @@ def _add_winner_markers(
     deduped = (
         sub_stats.sort_values("winner_votes", ascending=False)
         .drop_duplicates("sub_clean")
-        .set_index("sub_clean")[["winner_party", "winner_name", "winner_votes", "turnout_rate"]]
+        .set_index("sub_clean")[
+            ["winner_party", "winner_name", "winner_votes", "turnout_rate"]
+        ]
     )
     winner_map = deduped.to_dict("index")
     sub_names = list(winner_map.keys())
@@ -327,7 +333,9 @@ def render(
 ) -> None:
 
     st.subheader("การวิเคราะห์เชิงพื้นที่ — นครราชสีมา เขตเลือกตั้งที่ 5")
-    st.caption("อำเภอโนนสูง · อำเภอพิมาย · อำเภอเฉลิมพระเกียรติ")
+    st.caption(
+        "โนนสูง, พิมาย (เฉพาะกระเบื้องใหญ่, ชีวาน, ท่าหลวง, สัมฤทธิ์), เฉลิมพระเกียรติ (เฉพาะช้างทอง, ท่าช้าง)"
+    )
 
     sub_stats = _subdistrict_stats(records, candidates)
     features = _load_c5_features()
@@ -422,7 +430,7 @@ def render(
     st.markdown("### การวิเคราะห์แยกตามประเภทพื้นที่")
 
     st.info(
-        "**เกษตรกรรม (agricultural):** อำเภอโนนสูง, เฉลิมพระเกียรติ — ข้าว มันสำปะหลัง อ้อย\n\n"
+        "**เกษตรกรรม :** อำเภอโนนสูง, เฉลิมพระเกียรติ — ข้าว มันสำปะหลัง อ้อย\n\n"
         "**ท่องเที่ยว/ประวัติศาสตร์:** อำเภอพิมาย — อุทยานประวัติศาสตร์พิมาย (ปราสาทขอม)",
     )
 
@@ -468,36 +476,41 @@ def render(
         )
         st.plotly_chart(fig_aw, width="stretch")
 
-    # Party vote totals by area type (Tier A district candidates)
-    dist_cand, dist_cap = clean_subset(
-        candidates[candidates["ballot_type"] == "district"],
-        count_tier="A",
-        requires=["votes"],
-    )
-    if len(dist_cand) > 0:
-        dc = dist_cand.copy()
-        dc["sub_clean"] = dc["subdistrict"].apply(
-            lambda s: _strip_prefix(str(s) if pd.notna(s) else "", "ตำบล")
+    # Party votes by area type — district and partylist shown side-by-side
+    def _area_party_chart(ballot_type: str, cap_label: str) -> None:
+        sub_cand, cap = clean_subset(
+            candidates[candidates["ballot_type"] == ballot_type],
+            count_tier="A",
+            requires=["votes"],
         )
-        dc["dist_clean"] = dc["district"].apply(
+        if len(sub_cand) == 0:
+            return
+        sc = sub_cand.copy()
+        sc["dist_clean"] = sc["district"].apply(
             lambda s: _strip_prefix(str(s) if pd.notna(s) else "", "อำเภอ")
         )
-        dc["area_type"] = dc["dist_clean"].apply(
+        sc["area_type"] = sc["dist_clean"].apply(
             lambda d: AREA_TYPES.get(f"อำเภอ{d}", "other")
         )
-        area_party = dc.groupby(["area_type", "party"])["votes"].sum().reset_index()
+        area_party = sc.groupby(["area_type", "party"])["votes"].sum().reset_index()
         top_p = area_party.groupby("party")["votes"].sum().nlargest(8).index.tolist()
-        fig_ap = px.bar(
+        fig = px.bar(
             area_party[area_party["party"].isin(top_p)],
             x="area_type",
             y="votes",
             color="party",
             barmode="group",
             color_discrete_map={p: color(p) for p in top_p},
-            title=f"คะแนนพรรค Top 8 แยกตามประเภทพื้นที่<br><sub>{dist_cap}</sub>",
+            title=f"คะแนนพรรค Top 8 — {cap_label}<br><sub>{cap}</sub>",
             labels={"area_type": "ประเภทพื้นที่", "votes": "คะแนน", "party": "พรรค"},
         )
-        st.plotly_chart(fig_ap, width="stretch")
+        st.plotly_chart(fig, use_container_width=True)
+
+    col_d, col_pl = st.columns(2)
+    with col_d:
+        _area_party_chart("district", "บัตรเขต (เลือกคน)")
+    with col_pl:
+        _area_party_chart("partylist", "บัตรบัญชีรายชื่อ (เลือกพรรค)")
 
     st.divider()
 
