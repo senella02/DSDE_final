@@ -150,16 +150,52 @@ def render(
     st.divider()
 
     # -----------------------------------------------------------------------
+    # Data tier explanation
+    # -----------------------------------------------------------------------
+    st.subheader("Data quality tiers")
+    ta, tb, tc = st.columns(3)
+    with ta:
+        st.markdown("**Tier A High confidence**")
+        st.markdown(
+            "Both ballot checks pass: "
+            "valid + void + spoiled = total ballots *and* "
+            "sum of candidate votes = valid votes. "
+            
+        )
+    with tb:
+        st.markdown("**Tier B Partial confidence**")
+        st.markdown(
+            "The ballot totals balance (valid + void + spoiled = total ballots), "
+            "but candidate-vote rows don't sum to valid votes which may be the misread by OCR"
+        )
+    with tc:
+        st.markdown("**Tier C Low confidence**")
+        st.markdown(
+            "The main ballot totals don't balance a header field (eligible voters, "
+            "total ballots) was likely misread by OCR."
+        )
+
+    st.divider()
+
+    # -----------------------------------------------------------------------
     # Section B — Flag frequency + dominant-party breakdown
     # -----------------------------------------------------------------------
     st.subheader("Flag frequency")
 
+    _FREQ_EXCLUDE = {
+        "RULE_SINGLE_CANDIDATE_SWEEP",
+        "RULE_NEGATIVE_RATE",
+        "RULE_ALL_ZERO_VOTES",
+        "RULE_ZERO_TOTAL_BALLOTS",
+        "RULE_PERFECT_TURNOUT",
+    }
+    _freq_keys = [k for k in _FLAG_LABEL if k not in _FREQ_EXCLUDE]
     freq = (
         pd.DataFrame({
-            "flag":  list(_FLAG_LABEL.values()),
-            "key":   list(_FLAG_LABEL.keys()),
-            "count": [int(flags[k].sum()) for k in _FLAG_LABEL],
-            "type":  [_FLAG_TYPE[k] for k in _FLAG_LABEL],
+            "flag":  [_FLAG_LABEL[k] for k in _freq_keys],
+            "key":   _freq_keys,
+            "count": [int(flags[k].sum()) for k in _freq_keys],
+            "type":  [_FLAG_TYPE[k] for k in _freq_keys],
         })
         .sort_values("count", ascending=True)
     )
@@ -304,7 +340,7 @@ def render(
     fig_scatter.update_layout(
         title=(
             f"Turnout rate vs void rate<br>"
-            f"<sub>{scatter_cap} · baseline: count∈{{A}} (stat flags){oor_sc_note}</sub>"
+            f"<sub>{scatter_cap} </sub>"
         ),
         xaxis=dict(title="Turnout rate", range=[0, SC_X_MAX]),
         yaxis=dict(title="Void rate",    range=[0, SC_Y_MAX]),
@@ -464,12 +500,11 @@ def render(
 
         n_oor = int((~nc["turnout_rate"].between(X_MIN, X_MAX)
                      | ~nc["void_rate"].between(Y_MIN, Y_MAX)).sum()) if not nc.empty else 0
-        oor_note = f" · {n_oor} outside-range point(s) shown as ▼/▶/◀ at axis edge" if n_oor else ""
 
         fig_clust.update_layout(
             title=(
                 f"Station clusters (KMeans, k chosen by silhouette)<br>"
-                f"<sub>fitted: {clust_cap}{oor_note}</sub>"
+                f"<sub>fitted: {clust_cap}</sub>"
             ),
             xaxis=dict(title="Turnout rate", range=[X_MIN, X_MAX]),
             yaxis=dict(title="Void rate",    range=[Y_MIN, Y_MAX]),
