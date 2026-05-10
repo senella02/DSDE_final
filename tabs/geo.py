@@ -422,7 +422,8 @@ def render(
         )
     elif not features:
         st.warning(
-            f"ไม่พบไฟล์ GeoJSON: `{_GEOJSON_PATH}` — วาง `tha_admin3.geojson` ใน `{_HERE.parent}`"
+            # f"ไม่พบไฟล์ GeoJSON: `{_GEOJSON_PATH}` — วาง `tha_admin3.geojson` ใน `{_HERE.parent}`"
+            "ไม่พบไฟล์ GeoJSON: กรุณา download `tha_admin3.geojson` จาก https://drive.google.com/file/d/1PowqO0fX2DhIN0fDdd1hJLu3I31iUglg/view?usp=sharing แล้ววาง `tha_admin3.geojson` ใน /data"
         )
     else:
         def _make_map(ballot_type: str) -> "folium.Map":
@@ -571,11 +572,11 @@ def render(
         )
         st.plotly_chart(fig, use_container_width=True)
 
-    col_d, col_pl = st.columns(2)
-    with col_d:
-        _area_party_chart("district", "บัตรเขต (เลือกคน)")
-    with col_pl:
-        _area_party_chart("partylist", "บัตรบัญชีรายชื่อ (เลือกพรรค)")
+    # col_d, col_pl = st.columns(2)
+    # with col_d:
+    #     _area_party_chart("district", "บัตรเขต (เลือกคน)")
+    # with col_pl:
+    #     _area_party_chart("partylist", "บัตรบัญชีรายชื่อ (เลือกพรรค)")
 
     st.divider()
 
