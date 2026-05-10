@@ -85,7 +85,7 @@ def plot_swing(df_2023, df_2026, party_colors, mode="district"):
 
     max_parties = len(df_compare)
     
-    st.subheader(f'เปรียบเทียบคะแนน - {mode.upper()}')
+    st.subheader(f'เปรียบเทียบคะแนนระหว่างปี 2023 กับ 2026 - {mode.upper()}')
     
     col1, col2 = st.columns(2)
     
@@ -194,7 +194,7 @@ def show_turnout_metrics(records, df_ballot_2023, mode):
     pct_novote_26 = calc_pct(total_novote_26, total_actual_26)
 
 
-    st.subheader(f"สถิติการใช้สิทธิ - {mode.upper()}")
+    st.subheader(f"สถิติการใช้สิทธิระหว่างปี 2023 กับ 2026 - {mode.upper()}")
     
     col1, col2, col3, col4 = st.columns(4)
     
