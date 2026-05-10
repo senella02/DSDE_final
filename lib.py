@@ -518,6 +518,30 @@ def print_head() -> None:
         print(df.head(10).to_string())
 
 
+# ---------- Outlier nullification ----------
+
+_NUMERIC_RECORD_COLS = [
+    "eligible_voters", "voter_turnout", "total_ballots",
+    "valid_votes", "void_ballots", "spoiled_ballots",
+]
+
+# Hard cap: total eligible voters for นครราชสีมา เขต 5 per official ECT data.
+# No single station can exceed the district total, so anything above is an OCR error.
+_DISTRICT_ELIGIBLE_VOTERS = 133_508
+
+
+def _nullify_outliers(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
+    """Null out any value exceeding the district-wide eligible voter count (OCR error guard)."""
+    out = df.copy()
+    for col in cols:
+        if col not in out.columns:
+            continue
+        mask = out[col] > _DISTRICT_ELIGIBLE_VOTERS
+        if mask.any():
+            out.loc[mask, col] = pd.NA
+    return out
+
+
 # ---------- Entry point ----------
 
 
@@ -533,6 +557,8 @@ def load_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]
     records = pd.read_parquet(DATA_DIR / "records.parquet")
     candidates = pd.read_parquet(DATA_DIR / "candidates.parquet")
     records, candidates, geo_stats = _remap_geo_from_manifest(records, candidates)
+    records = _nullify_outliers(records, _NUMERIC_RECORD_COLS)
+    candidates = _nullify_outliers(candidates, ["votes"])
     _write_report("geo_remapping", geo_stats)
     return (
         records,
