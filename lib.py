@@ -3,14 +3,16 @@ lib.py — DSDE Election OCR shared utilities
 Conventions (enforced project-wide):
   - Every chart title carries the gate caption: f"{title}<br><sub>{cap}</sub>"
   - Every party color comes from color()
-  - Every plot uses st.plotly_chart(fig, use_container_width=True)
+  - Every plot uses st.plotly_chart(fig, width='stretch')
   - One render(records, candidates, pages, official) function per tab file — no module-level st calls
 """
+
 import json
 import re
 from pathlib import Path
 
 import pandas as pd
+
 import streamlit as st
 
 # ---------- Paths ----------
@@ -44,6 +46,7 @@ OCR_DIR = _find_ocr_dir()
 
 # ---------- Palette ----------
 
+
 def _load_palette() -> dict:
     if PALETTE_PATH.exists():
         return json.loads(PALETTE_PATH.read_text(encoding="utf-8"))
@@ -62,6 +65,7 @@ def color(party) -> str:
 
 
 # ---------- Validity gate ----------
+
 
 def clean_subset(
     df: pd.DataFrame,
@@ -88,11 +92,14 @@ def clean_subset(
         for col in requires:
             out = out[out[col].notna()]
         parts.append("notna(" + ",".join(requires) + ")")
-    caption = f"n={len(out)}/{len(df)} • " + (" ∧ ".join(parts) if parts else "all rows")
+    caption = f"n={len(out)}/{len(df)} • " + (
+        " ∧ ".join(parts) if parts else "all rows"
+    )
     return out, caption
 
 
 # ---------- JSON helpers ----------
+
 
 def _load_json_file(path: Path) -> list:
     """Load JSON, converting bare NaN (Python serialiser artifact) to null."""
@@ -102,6 +109,7 @@ def _load_json_file(path: Path) -> list:
 
 
 # ---------- Imputation ----------
+
 
 def _impute_ballot_fields(rec: dict) -> list[str]:
     """
@@ -135,6 +143,7 @@ def _impute_ballot_fields(rec: dict) -> list[str]:
 
 
 # ---------- Tier assignment ----------
+
 
 def _count_tier(rec: dict, imputed: list[str]) -> str:
     total_is_valid = rec.get("total_is_valid", False)
@@ -173,6 +182,7 @@ def _meta_tier(rec: dict) -> str:
 
 
 # ---------- Ingestion ----------
+
 
 def ingest_json_to_parquet() -> None:
     """Walk OCR_OUTPUT_JSON/, build the three data parquets, then load official."""
@@ -290,6 +300,7 @@ def ingest_json_to_parquet() -> None:
 
 # ---------- Official data ----------
 
+
 def _parse_score(val) -> int | None:
     if val is None:
         return None
@@ -341,7 +352,8 @@ def _ingest_official() -> None:
         (bc_d.get("valid_votes") or 0)
         + (bc_d.get("void_ballots") or 0)
         + (bc_d.get("spoiled_ballots") or 0)
-        if bc_d else None
+        if bc_d
+        else None
     )
     for s in district_scores:
         num = _parse_number_field(s.get("number"))
@@ -368,7 +380,8 @@ def _ingest_official() -> None:
         (bc_p.get("valid_votes") or 0)
         + (bc_p.get("void_ballots") or 0)
         + (bc_p.get("spoiled_ballots") or 0)
-        if bc_p else None
+        if bc_p
+        else None
     )
     for s in partylist_scores:
         num = _parse_number_field(s.get("number"))
@@ -394,6 +407,7 @@ def _ingest_official() -> None:
 
 # ---------- Geo remapping ----------
 
+
 def _remap_geo_from_manifest(records: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     """
     Override district/subdistrict in records with pdf_manifest.csv ground truth.
@@ -414,7 +428,10 @@ def _remap_geo_from_manifest(records: pd.DataFrame) -> tuple[pd.DataFrame, dict]
 
     stats: dict = {"total_records": len(out)}
 
-    for ocr_col, man_col in [("district", "m_district"), ("subdistrict", "m_subdistrict")]:
+    for ocr_col, man_col in [
+        ("district", "m_district"),
+        ("subdistrict", "m_subdistrict"),
+    ]:
         has_manifest = merged[man_col].notna()
         ocr_null = merged[ocr_col].isna()
         differs = merged[ocr_col].fillna("\x00") != merged[man_col].fillna("\x00")
@@ -454,12 +471,13 @@ def _write_report(section: str, data: dict) -> None:
 
 # ---------- Debug helpers ----------
 
+
 def print_head() -> None:
     """Print the first 3 rows of each parquet file."""
     for path in PARQUET_FILES:
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"  {path.name}")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
         if not path.exists():
             print("  [not found]")
             continue
@@ -468,6 +486,7 @@ def print_head() -> None:
 
 
 # ---------- Entry point ----------
+
 
 @st.cache_data
 def load_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
