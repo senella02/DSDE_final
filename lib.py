@@ -518,6 +518,36 @@ def print_head() -> None:
         print(df.head(10).to_string())
 
 
+# ---------- Outlier nullification ----------
+
+_NUMERIC_RECORD_COLS = [
+    "eligible_voters", "voter_turnout", "total_ballots",
+    "valid_votes", "void_ballots", "spoiled_ballots",
+]
+
+
+def _nullify_outliers(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
+    """
+    Set extreme high outliers to NaN using IQR × 3 upper fence.
+    Catches OCR digit-concatenation errors (e.g. 1,248,403 when typical
+    station counts are in the hundreds). Only upper-tail; low/zero values
+    are valid for small stations and are not touched.
+    """
+    out = df.copy()
+    for col in cols:
+        if col not in out.columns:
+            continue
+        s = out[col].dropna()
+        if s.empty:
+            continue
+        q1, q3 = s.quantile(0.25), s.quantile(0.75)
+        upper = q3 + 3.0 * (q3 - q1)
+        mask = out[col] > upper
+        if mask.any():
+            out.loc[mask, col] = pd.NA
+    return out
+
+
 # ---------- Entry point ----------
 
 
@@ -533,6 +563,8 @@ def load_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]
     records = pd.read_parquet(DATA_DIR / "records.parquet")
     candidates = pd.read_parquet(DATA_DIR / "candidates.parquet")
     records, candidates, geo_stats = _remap_geo_from_manifest(records, candidates)
+    records = _nullify_outliers(records, _NUMERIC_RECORD_COLS)
+    candidates = _nullify_outliers(candidates, ["votes"])
     _write_report("geo_remapping", geo_stats)
     return (
         records,
