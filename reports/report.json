@@ -8,11 +8,11 @@
       "total_remapped": 579
     },
     "subdistrict": {
-      "null_filled": 6,
-      "value_changed": 432,
-      "unchanged": 0,
-      "total_remapped": 438
+      "null_filled": 9,
+      "value_changed": 564,
+      "unchanged": 6,
+      "total_remapped": 573
     }
   },
-  "last_updated": "2026-05-10T21:00:43.452330"
+  "last_updated": "2026-05-10T21:44:03.994651"
 }

@@ -408,48 +408,81 @@ def _ingest_official() -> None:
 # ---------- Geo remapping ----------
 
 
-def _remap_geo_from_manifest(records: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+def _subdistrict_from_path(path: str) -> str | None:
     """
-    Override district/subdistrict in records with pdf_manifest.csv ground truth.
-    Advance records (no manifest geo) are left untouched.
-    Returns (corrected_df, mismatch_stats).
+    Extract ตำบล name from manifest file_path by parsing the municipality folder.
+    e.g. '.../อำเภอโนนสูง/เทศบาลตำบลดอนหวาย/...' → 'ตำบลดอนหวาย'
+         '.../อำเภอโนนสูง/เทศบาลธารปราสาท/...'   → 'ตำบลธารปราสาท'
+    """
+    if not isinstance(path, str):
+        return None
+    parts = path.split("/")
+    if len(parts) < 3:
+        return None
+    muni = parts[2]
+    for prefix in ("เทศบาลตำบล", "เทศบาล", "อบต."):
+        if muni.startswith(prefix):
+            name = muni[len(prefix):]
+            return f"ตำบล{name}" if name else None
+    return None
+
+
+def _apply_geo_remap(df: pd.DataFrame, manifest: pd.DataFrame) -> pd.DataFrame:
+    """Apply manifest district/subdistrict overrides to any DataFrame that has file_id."""
+    out = df.reset_index(drop=True).copy()
+    merged = out.merge(manifest, on="file_id", how="left")
+    for ocr_col, man_col in [("district", "m_district"), ("subdistrict", "m_subdistrict")]:
+        has_manifest = merged[man_col].notna()
+        out.loc[has_manifest, ocr_col] = merged.loc[has_manifest, man_col].values
+    return out
+
+
+def _remap_geo_from_manifest(
+    records: pd.DataFrame, candidates: pd.DataFrame
+) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
+    """
+    Override district/subdistrict in records AND candidates with pdf_manifest.csv
+    ground truth. Advance records (no manifest geo) are left untouched.
+    Returns (corrected_records, corrected_candidates, mismatch_stats).
     """
     if not MANIFEST_PATH.exists():
-        return records, {"error": f"{MANIFEST_PATH.name} not found"}
+        return records, candidates, {"error": f"{MANIFEST_PATH.name} not found"}
+
+    raw = pd.read_csv(MANIFEST_PATH, dtype=str).drop_duplicates("file_id")
+
+    # Backfill NaN subdistrict from the folder path (เทศบาลตำบลXXX → ตำบลXXX)
+    null_sub = raw["subdistrict"].isna() & raw["district"].notna() & raw["file_path"].notna()
+    if null_sub.any():
+        raw.loc[null_sub, "subdistrict"] = raw.loc[null_sub, "file_path"].map(
+            _subdistrict_from_path
+        )
 
     manifest = (
-        pd.read_csv(MANIFEST_PATH, dtype=str)[["file_id", "district", "subdistrict"]]
-        .drop_duplicates("file_id")
+        raw[["file_id", "district", "subdistrict"]]
         .rename(columns={"district": "m_district", "subdistrict": "m_subdistrict"})
     )
 
-    out = records.reset_index(drop=True).copy()
-    merged = out.merge(manifest, on="file_id", how="left")
-
-    stats: dict = {"total_records": len(out)}
-
-    for ocr_col, man_col in [
-        ("district", "m_district"),
-        ("subdistrict", "m_subdistrict"),
-    ]:
+    # Compute stats against records (source of truth for ballot rows)
+    merged = records.reset_index(drop=True).merge(manifest, on="file_id", how="left")
+    stats: dict = {"total_records": len(records)}
+    for ocr_col, man_col in [("district", "m_district"), ("subdistrict", "m_subdistrict")]:
         has_manifest = merged[man_col].notna()
         ocr_null = merged[ocr_col].isna()
         differs = merged[ocr_col].fillna("\x00") != merged[man_col].fillna("\x00")
-
-        null_filled = int((has_manifest & ocr_null).sum())
-        value_changed = int((has_manifest & ~ocr_null & differs).sum())
-        unchanged = int((has_manifest & ~ocr_null & ~differs).sum())
-
         stats[ocr_col] = {
-            "null_filled": null_filled,
-            "value_changed": value_changed,
-            "unchanged": unchanged,
-            "total_remapped": null_filled + value_changed,
+            "null_filled": int((has_manifest & ocr_null).sum()),
+            "value_changed": int((has_manifest & ~ocr_null & differs).sum()),
+            "unchanged": int((has_manifest & ~ocr_null & ~differs).sum()),
         }
+        stats[ocr_col]["total_remapped"] = (
+            stats[ocr_col]["null_filled"] + stats[ocr_col]["value_changed"]
+        )
 
-        out.loc[has_manifest, ocr_col] = merged.loc[has_manifest, man_col].values
-
-    return out, stats
+    return (
+        _apply_geo_remap(records, manifest),
+        _apply_geo_remap(candidates, manifest),
+        stats,
+    )
 
 
 def _write_report(section: str, data: dict) -> None:
@@ -498,11 +531,12 @@ def load_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]
             )
         ingest_json_to_parquet()
     records = pd.read_parquet(DATA_DIR / "records.parquet")
-    records, geo_stats = _remap_geo_from_manifest(records)
+    candidates = pd.read_parquet(DATA_DIR / "candidates.parquet")
+    records, candidates, geo_stats = _remap_geo_from_manifest(records, candidates)
     _write_report("geo_remapping", geo_stats)
     return (
         records,
-        pd.read_parquet(DATA_DIR / "candidates.parquet"),
+        candidates,
         pd.read_parquet(DATA_DIR / "pages.parquet"),
         pd.read_parquet(DATA_DIR / "official.parquet"),
     )
