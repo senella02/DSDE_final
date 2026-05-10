@@ -1,14 +1,8 @@
 import streamlit as st
 import pandas as pd
-
-
-def render(records: pd.DataFrame, candidates: pd.DataFrame, pages: pd.DataFrame, official: pd.DataFrame) -> None:
-    st.info("🚧 EDA tab — placeholder (assigned to another team member)")
 import plotly.express as px
 import plotly.graph_objects as go
 from lib import clean_subset, color
-
-import streamlit as st
 
 
 def _side_by_side_hist(
@@ -32,7 +26,7 @@ def _side_by_side_hist(
             labels={col: xlabel, "count": "จำนวน"},
             color_discrete_sequence=["#3498db" if label == "ข้อมูลทั้งหมด" else "#2ecc71"],
         )
-        col_obj.plotly_chart(fig, width="stretch")
+        col_obj.plotly_chart(fig, use_container_width=True)
 
 
 def render(
@@ -87,7 +81,6 @@ def render(
             .reset_index()
             .sort_values("votes", ascending=False)
         )
-        party_share["color"] = party_share["party"].map(color)
         fig_dist = px.bar(
             party_share.head(15),
             x="party",
@@ -98,7 +91,7 @@ def render(
             labels={"party": "พรรค", "votes": "คะแนนรวม"},
         )
         fig_dist.update_layout(showlegend=False, xaxis_tickangle=-40)
-        st.plotly_chart(fig_dist, width="stretch")
+        st.plotly_chart(fig_dist, use_container_width=True)
 
     # Partylist vote share by party (Tier A)
     pl_cand, pl_cap = clean_subset(
@@ -123,7 +116,7 @@ def render(
             labels={"party": "พรรค", "votes": "คะแนนรวม"},
         )
         fig_pl.update_layout(showlegend=False, xaxis_tickangle=-40)
-        st.plotly_chart(fig_pl, width="stretch")
+        st.plotly_chart(fig_pl, use_container_width=True)
 
     # Turnout vs void scatter colored by count_tier
     scatter_sub, scatter_cap = clean_subset(
@@ -150,7 +143,7 @@ def render(
                 "count_tier": "Count Tier",
             },
         )
-        st.plotly_chart(fig_scatter, width="stretch")
+        st.plotly_chart(fig_scatter, use_container_width=True)
 
     st.divider()
 
@@ -194,7 +187,7 @@ def render(
                     "ballot_type": "ประเภท",
                 }
             ),
-            width="stretch",
+            use_container_width=True,
             height=400,
         )
 
@@ -225,7 +218,7 @@ def render(
                     "ballot_type": "ประเภท",
                 }
             ),
-            width="stretch",
+            use_container_width=True,
             height=400,
         )
 
@@ -249,7 +242,6 @@ def render(
             .sort_values("votes", ascending=False)
             .head(10)
         )
-        cand_rank["color"] = cand_rank["party"].map(color)
         fig_cand = px.bar(
             cand_rank,
             x="name",
@@ -262,7 +254,7 @@ def render(
         )
         fig_cand.update_layout(showlegend=True, xaxis_tickangle=-30)
         fig_cand.update_traces(texttemplate="%{text:,}", textposition="outside")
-        st.plotly_chart(fig_cand, width="stretch")
+        st.plotly_chart(fig_cand, use_container_width=True)
 
     # Party leaderboard (partylist, Tier A)
     pl_rank, pl_rank_cap = clean_subset(
@@ -295,4 +287,4 @@ def render(
         )
         fig_lb.update_layout(showlegend=False, xaxis_tickangle=-40)
         fig_lb.update_traces(texttemplate="%{text:.1f}%", textposition="outside")
-        st.plotly_chart(fig_lb, width="stretch")
+        st.plotly_chart(fig_lb, use_container_width=True)
