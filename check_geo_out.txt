@@ -1,0 +1,41 @@
+=== POST-REMAP CHECK ===
+Normal records total: 578
+Records covered by manifest: 578
+Records NOT in manifest:      0
+
+After remap:
+  district match (remapped == manifest):    578 / 578
+  subdistrict match (remapped == manifest): 440 / 578
+
+--- Records not in manifest (kept OCR district/subdistrict): 0 ---
+
+--- Covered records where district still mismatches: 0 ---
+
+--- Covered records where subdistrict still mismatches: 0 ---
+
+--- Distinct district values after remap (normal records) ---
+['อำเภอพิมาย', 'อำเภอเฉลิมพระเกียรติ', 'อำเภอโนนสูง']
+
+--- Records with m_subdistrict=NaN (เทศบาล, expected): check their post-remap subdistrict ---
+Count: 140
+                                                                                              file_path   subdistrict
+4      LA_district5_data_raw/อำเภอโนนสูง/เทศบาลตำบลโนนสูง/หน่วยเลือกตั้งที่ 1/ทต.โนนสูง หน่วยที่ 1 .pdf       ในเมือง
+6        LA_district5_data_raw/อำเภอเฉลิมพระเกียรติ/เทศบาลตำบลท่าช้าง/หน่วยเลือกตั้งที่ 1/สส.5ทับ18.pdf     ตำบลพร้าง
+42          LA_district5_data_raw/อำเภอโนนสูง/เทศบาลตำบลด่านคล้า/หน่วยเลือกตั้งที่ 12/518บช หน่วย13.pdf  ตำบลถ่านคล้า
+47   LA_district5_data_raw/อำเภอเฉลิมพระเกียรติ/เทศบาลตำบลท่าช้าง/หน่วยเลือกตั้งที่ 8/สส.5ทับ18(บช).pdf       ท่าเรือ
+48               LA_district5_data_raw/อำเภอโนนสูง/เทศบาลตำบลมะค่า/หน่วยเลือกตั้งที่ 2/ทต.มะค่า น.2.pdf     ตำบลแม่วา
+54       LA_district5_data_raw/อำเภอโนนสูง/เทศบาลตำบลใหม่/หน่วยเลือกตั้งที่ 12/หน่วยที่ 12 ตำบลใหม่.pdf          ใหม่
+61        LA_district5_data_raw/อำเภอเฉลิมพระเกียรติ/เทศบาลตำบลท่าช้าง/หน่วยเลือกตั้งที่ 6/สส5ทับ18.pdf       ท่าช้าง
+70           LA_district5_data_raw/อำเภอโนนสูง/เทศบาลตำบลด่านคล้า/หน่วยเลือกตั้งที่ 6/ด่านคล่า น.6 .pdf      ด่านคล้า
+81       LA_district5_data_raw/อำเภอโนนสูง/เทศบาลตำบลใหม่/หน่วยเลือกตั้งที่ 16/หน่วยที่ 16 ตำบลใหม่.pdf          ในมี
+90    LA_district5_data_raw/อำเภอเฉลิมพระเกียรติ/เทศบาลตำบลท่าช้าง/หน่วยเลือกตั้งที่ 7/สส5ทับ18(บช).pdf       ท่าช้าง
+95      LA_district5_data_raw/อำเภอโนนสูง/เทศบาลตำบลโนนสูง/หน่วยเลือกตั้งที่ 6/ทต.โนนสูง หน่วยที่ 6.pdf        โนนสูง
+97              LA_district5_data_raw/อำเภอโนนสูง/เทศบาลธารปราสาท/หน่วยเลือกตั้งที่ 6/ทต.ตลาดแค น.6.pdf   ตำบลตลาดแคร
+101          LA_district5_data_raw/อำเภอโนนสูง/เทศบาลตำบลด่านคล้า/หน่วยเลือกตั้งที่ 8/ด่านคล่า น.8 .pdf    อำเภอสำโรง
+105        LA_district5_data_raw/อำเภอโนนสูง/เทศบาลตำบลใหม่/หน่วยเลือกตั้งที่ 3/หน่วยที่ 3 ตำบลใหม่.pdf          ใหม่
+113  LA_district5_data_raw/อำเภอเฉลิมพระเกียรติ/เทศบาลตำบลท่าช้าง/หน่วยเลือกตั้งที่ 4/สส.5ทับ18(บช).pdf       ท่าช้าง
+114      LA_district5_data_raw/อำเภอเฉลิมพระเกียรติ/เทศบาลตำบลท่าช้าง/หน่วยเลือกตั้งที่ 3/สส.5ทับ18.pdf    ถนนศาลาไผ่
+122  LA_district5_data_raw/อำเภอโนนสูง/เทศบาลตำบลดอนหวาย/หน่วยเลือกตั้งที่ 5/หน่วยที่ 5 ตำบลดอนหวาย.pdf       คลองบาง
+127    LA_district5_data_raw/อำเภอโนนสูง/เทศบาลตำบลดอนหวาย/หน่วยเลือกตั้งที่ 1/ต.ดอนหวาย หน่วยที่ 1.pdf       ดอนหวาย
+129             LA_district5_data_raw/อำเภอโนนสูง/เทศบาลธารปราสาท/หน่วยเลือกตั้งที่ 2/ทต.ตลาดแค น.2.pdf   ตำบลตลาดแดง
+141     LA_district5_data_raw/อำเภอโนนสูง/เทศบาลตำบลโนนสูง/หน่วยเลือกตั้งที่ 2/ทต.โนนสูง หน่วยที่ 2.pdf         ในฯลฯ

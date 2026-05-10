@@ -1,149 +1,174 @@
-# CLAUDE.md — DSDE Final Project (EDA + Data Quality track)
+# CLAUDE.md — Visualization Codebase
 
-Working notes for the EDA / Data-Quality slice of the DSDE final project. This is the **baseline** — every other analysis on the team feeds off the cleaned dataset and the party color palette defined here.
-
----
-
-## 1. Project context (from `Requirement.md`)
-
-**Goal of this track:** understand the data, audit OCR quality, and produce the assets the team's downstream dashboards rely on.
-
-The dataset comes from **Thai election ballot-count forms** (district 5, นครราชสีมา / โนนสูง area) that were scanned and processed by **Typhoon OCR**. We are NOT writing the OCR pipeline — we consume its JSON outputs.
+**Context:** Streamlit dashboard over Typhoon OCR output for นครราชสีมา เขต 5, 2026 Thai election. 3 อำเภอ: พิมาย, เฉลิมพระเกียรติ, โนนสูง. Election types: `normal`, `advance_out_of_district`, `advance_in_district`.
 
 ---
 
-## 2. Data overview
+## File layout
 
-### 2.1 Files in this folder
+```
+Visualization/
+├── app.py                        # Streamlit entry — 6 tabs
+├── lib.py                        # load_data(), clean_subset(), color(), tiers
+├── party_colors.json             # party → hex (UTF-8 Thai keys)
+├── tabs/
+│   ├── overview.py
+│   ├── data_quality.py
+│   ├── eda.py
+│   ├── geo.py
+│   └── swing_analysis.py
+├── data/
+│   ├── records.parquet           # 607 rows
+│   ├── candidates.parquet        # 19,863 rows
+│   ├── pages.parquet             # 1,794 rows
+│   ├── official.parquet          # 69 rows — government totals, not per-station
+│   ├── manifest/pdf_manifest.csv, page_manifest.csv
+│   └── korat2023_data/district_2023.csv, partylist_2023.csv
+└── reports/
+    ├── data_quality_report.csv, spotcheck_queue.csv, accuracy_report.csv
+    └── anomaly_flags.csv, cluster_labels.csv
+```
 
-| File / folder | What it is |
+---
+
+## Parquet schemas
+
+### `records.parquet` — 607 rows
+
+| Column | Type | Notes |
+|---|---|---|
+| `file_id` | str | MD5 of source PDF |
+| `election_type` | str | `normal` / `advance_in_district` / `advance_out_of_district` |
+| `ballot_type` | str | `district` / `partylist` |
+| `district`, `subdistrict`, `moo` | str/float | null for advance records |
+| `station_number` | float | null for advance or badly-read records |
+| `eligible_voters`, `voter_turnout` | float | normal only |
+| `total_ballots`, `valid_votes`, `void_ballots`, `spoiled_ballots` | float | |
+| `total_is_valid` | bool | valid+void+spoiled ≈ total (±1) |
+| `candidate_sum_valid` | bool | Σ candidate votes ≈ valid_votes (±1) |
+| `failure_modes` | str | Pipe-separated, e.g. `"candidate_sum_fail (sum=…) \| null_header_field:moo"` |
+| `failure_mode_count` | int | |
+| `count_tier` | str | A / B / C |
+| `meta_tier` | str | M0 / M1 / M2 |
+| `imputed_fields` | str | Fields derived by imputation |
+| `turnout_rate`, `void_rate`, `spoil_rate` | float | Pre-computed ratios |
+
+**Distribution:** normal=578, advance_out=20, advance_in=8 | district=306, partylist=300 | tier A=219, B=205, C=183 | M0=564, M1=35, M2=8 | 70% have ≥1 failure mode.
+
+### `candidates.parquet` — 19,863 rows
+
+| Column | Notes |
 |---|---|
-| `data/OCR_OUTPUT_JSON/*.json` | One JSON per PDF, ~400 files. **Each file is a list** of records (usually 2: one `district`, one `partylist`). |
-| `pdf_manifest.csv` | 400 rows. Source PDFs with `file_id`, `file_path`, `election_type`, `area_scope`, `district`, `subdistrict`, `station_no`, `pdf_name`. Authoritative list of input PDFs. |
-| `page_manifest.csv` | 1,887 rows. Per-page tracking (`file_id`, `page_no`, `image_path`, `status`). |
-| `reports/QA.csv` | 606 rows. Pre-computed QA flags per ballot record (see §4). |
-| `Requirement.md` | The brief (Thai). |
+| `file_id` | FK to records |
+| `ballot_type`, `election_type`, `district`, `subdistrict`, `station_number`, `count_tier`, `meta_tier` | Inherited from parent |
+| `number` | Candidate/party number |
+| `name` | null for partylist |
+| `party` | Thai party name |
+| `votes` | null if withdrawn **or** OCR missed — check `withdrawn` to distinguish |
+| `withdrawn` | bool |
 
-### 2.2 Counts at a glance
+district=2,754 rows (9 candidates), partylist=17,100 rows.
 
-- **377** unique `file_id`s appear in `QA.csv` (out of 400 PDFs in the manifest → ~23 PDFs produced no parseable record).
-- **606** ballot records in QA.csv. Most PDFs contribute 2 records (district + partylist); 149 contribute 1; one PDF contributes 3.
-- Election-type split: `normal` 577, `advance_out_of_district` 20, `advance_in_district` 8.
-- Ballot-type split: `district` 331, `partylist` 274.
+### `pages.parquet` — 1,794 rows
 
-### 2.3 JSON record schema (per item in the list)
+| Column | Notes |
+|---|---|
+| `file_id` | FK to records |
+| `page_no` | 1-based |
+| `page_role` | `header` / `continuation` (split: 598 / 1,196) |
+| `ocr_latency_sec` | Mean 8.75s, max 191.5s |
+| `failure_modes`, `error` | Page-level issues |
+
+### `official.parquet` — 69 rows
+
+Use for OCR accuracy benchmarking only — aggregate totals, not per-station.  
+Columns: `ballot_type`, `number`, `name`, `party`, `withdrawn`, `official_votes`, `vote_percent`, `official_valid_votes`, `official_void_ballots`, `official_spoiled_ballots`, `official_total_ballots`.
+
+Official totals: **district** valid=87,644 / void=3,871 / spoiled=3,614 / total=95,129 | **partylist** valid=86,005 / void=5,849 / spoiled=3,277 / total=95,131.
+
+---
+
+## Validity model
+
+### `count_tier` — ballot arithmetic
+
+| Tier | Rule | Use for |
+|---|---|---|
+| A | total_is_valid ∧ candidate_sum_valid | Any aggregate |
+| B | total_is_valid ∧ ¬candidate_sum_valid | Turnout/void/spoil % only |
+| C | ¬total_is_valid | Spot-check queue only |
+
+### `meta_tier` — geographic joinability
+
+| Tier | Rule | Use for |
+|---|---|---|
+| M0 | district, subdistrict, station_number all present | Station-level joins |
+| M1 | station_number or moo null | Subdistrict aggregates only |
+| M2 | subdistrict null on a normal record | Spot-check only |
+
+Advance records: null district/subdistrict/moo is expected; M-tier is set by `station_number` alone.  
+**Imputation:** if exactly one of {total_ballots, valid_votes, void_ballots, spoiled_ballots} is null and the other three are present, it is derived. Runs before tier assignment.
+
+---
+
+## Data quality
+
+### Top failure modes
+
+| Mode | Records |
+|---|---:|
+| `candidate_sum_fail` | 318 |
+| `ballot_math_fail` | 159 |
+| `ocr_missed_candidates` | 60 |
+| `null_header_field:total_ballots` | 41 |
+| `null_header_field:spoiled_ballots` | 40 |
+| `null_header_field:void_ballots` | 33 |
+| `null_header_field:valid_votes` | 30 |
+| `null_header_field:eligible_voters` | 28 |
+| `null_header_field:moo` | 26 |
+| `ocr_extra_candidates` | 25 |
+
+Strip from `(` to get base mode name. ~45% of records have 2+ simultaneous failures. ~23 PDFs produced no parseable record. Nulls in `eligible_voters`/`moo`/`voter_turnout` are expected for advance records.
+
+---
+
+## OCR JSON schema
+
+Each JSON is a **list** — always loop, never index `[0]`.
 
 ```
 metadata: { file_id, pdf_name, processed_at, total_pages }
-election_type      : "normal" | "advance_in_district" | "advance_out_of_district"
-ballot_type        : "district" | "partylist"
-district / subdistrict / moo  : present only when election_type == "normal"
-station_number     : int
-eligible_voters    : int (normal only)
-voter_turnout      : int (normal only)
-total_ballots      : int
-valid_votes        : int   (บัตรดี)
-void_ballots       : int   (บัตรเสีย)
-spoiled_ballots    : int   (บัตรไม่เลือก)
+election_type, ballot_type, district, subdistrict, moo, station_number
+eligible_voters, voter_turnout          (normal only)
+total_ballots, valid_votes, void_ballots, spoiled_ballots
 candidates: [ { number, name, party, votes, withdrawn } ]
-total_is_valid     : bool   — valid + void + spoiled ≈ total_ballots (±1)
-candidate_sum_valid: bool   — sum(candidate.votes) ≈ valid_votes (±1)
-validation_message / candidate_sum_message : human-readable reason
-failure_modes      : [ string ]   — see §4 for taxonomy
-pages              : [ { page_no, image_path, page_role, ocr_latency_sec, failure_modes, error, raw_ocr } ]
+total_is_valid, candidate_sum_valid
+failure_modes: [ string ]
+pages: [ { page_no, image_path, page_role, ocr_latency_sec, failure_modes, error } ]
 ```
 
-**Schema gotchas to remember while coding:**
-- A single JSON file = a **list**, not a dict. Loop, don't index `[0]`.
-- `district` / `subdistrict` / `moo` are `null` for advance-vote records — don't filter them out blindly.
-- `candidates[i].votes` is `null` if the candidate withdrew **or** if OCR missed the row. Distinguish via `withdrawn`.
-- `partylist` records always have `name = null` (it's a party-only ballot).
-- Sample file checked: `dca1df07d6175b0ec5fc8bd5ec5f9b4a.json` — โนนสูง station 14. Both district and partylist records have `candidate_sum_fail` due to OCR missing tail rows of the candidate table. Pattern is common.
+- `name` null on partylist candidates.
+- `district`/`subdistrict`/`moo` null for advance records — not an error.
 
 ---
 
-## 3. Data abnormalities (from `QA.csv`, n = 606)
+## Coding conventions
 
-| Abnormality | Count | % of records |
-|---|---:|---:|
-| Has at least one failure mode | 433 | 71.5% |
-| Clean (no failure modes) | 173 | 28.5% |
-| `total_is_valid == False` (ballot math broken) | 210 | 34.7% |
-| `candidate_sum_valid == False` (votes ≠ valid) | 371 | 61.2% |
-| `both_valid == True` (passes both) | 194 | 32.0% |
+**Tab signature:** one `render(records, candidates, pages, official)` per tab file. No module-level Streamlit calls.
 
-**Failure-mode frequencies** (counted per occurrence; a record can have several):
+**Filtering policy:**
+- `data_quality.py`, `eda.py`: gate all aggregates via `clean_subset()`; attach `n=X/Y` caption to every chart.
+- All other tabs (`overview`, `geo`, `swing_analysis`): plot all data; drop nulls only per-field for the specific chart; never call `clean_subset()` with a tier filter.
 
-| Mode | Count | Meaning |
-|---|---:|---|
-| `candidate_sum_fail` | 330 | Σ candidate votes ≠ `valid_votes` — usually OCR missed candidate rows. |
-| `null_header_field:*` | 216 | A header number couldn't be extracted. Breakdown below. |
-| `ballot_math_fail` | 156 | `valid + void + spoiled` ≠ `total_ballots`. |
-| `ocr_missed_candidates:[…]` | 60 | Specific candidate rows present in reference but not in OCR output. |
-| `ocr_extra_candidates:[…]` | 51 | OCR hallucinated rows not in reference list. |
-| `no_candidates_parsed` | 2 | Whole candidate table missing. |
-
-**Which header fields go null most often:**
-
-```
-total_ballots      44
-spoiled_ballots    41
-void_ballots       34
-valid_votes        31
-moo                26
-eligible_voters    26
-voter_turnout       8
-station_number      4
-district            2
+```python
+# data_quality / eda only
+from lib import clean_subset
+sub, cap = clean_subset(records, count_tier="AB", requires=["voter_turnout", "eligible_voters"])
+fig = px.histogram(sub, x="turnout_rate", title=f"Turnout Rate<br><sub>{cap}</sub>")
 ```
 
-Distribution of failure-mode count per record: median 1, max 7. About **45%** of records have 2+ simultaneous failures, so QA logic should be additive, not exclusive.
+**All plots:** `st.plotly_chart(fig, use_container_width=True)`
 
-**Implication for EDA:** the "valid_votes" and aggregate ballot fields are noisy. Any aggregate (turnout %, void rate, party share) should be computed only over rows where the relevant fields are non-null AND the relevant validity flag is True, and the report should always show the denominator we kept.
+**Party colors:** `from lib import color; color("เพื่อไทย")` — never inline hex codes.
 
----
-
-## 4. Our task breakdown
-
-Strictly the **EDA + Data Quality** track. Other team members handle modeling, geo-mapping, etc. The primary deliverable is a **Streamlit app** (`app.py`) with three tabs; standalone plot files are not produced.
-
-1. **Ingest & flatten.** Walk `OCR_OUTPUT_JSON/`, expand each list, build three long DataFrames and persist as Parquet under `data/`:
-   - `data/records.parquet` — one row per ballot record (district or partylist) with header fields, validity flags, `count_tier`, `meta_tier`, and `imputed_fields`.
-   - `data/candidates.parquet` — one row per candidate-vote, FK = `(file_id, ballot_type)`.
-   - `data/pages.parquet` — one row per page, from `pages[]` inside each JSON record.
-
-2. **Load official results.** Ingest government ground-truth into `data/official.parquet`. Join key: `(station_number, subdistrict, ballot_type)`. Compute per-field OCR errors → `reports/accuracy_report.csv`.
-
-3. **Define the canonical party color palette.** Single source of truth for party → hex color. Save as `party_colors.json`. Keys must match the `party` strings exactly as they appear in the JSON (be careful with Thai whitespace).
-
-4. **Streamlit app — three tabs** (see `solution.md §6` for full specs):
-   - **Overview** — five headline metric cards + tier composition bar + map placeholder.
-   - **Data Quality** — failure-mode analysis, OCR accuracy vs official, spot-check queue. Exports `reports/data_quality_report.csv` and `reports/spotcheck_queue.csv` via download buttons.
-   - **EDA** — distributions (full vs valid-only, side-by-side) and station/party rankings.
-
----
-
-## 5. Deliverables
-
-| Deliverable | Path | Format | Notes |
-|---|---|---|---|
-| Streamlit app | `app.py`, `lib.py`, `tabs/` | py | Primary deliverable — three tabs. |
-| Ballot records | `data/records.parquet` | parquet | One row per ballot record; includes `count_tier`, `meta_tier`, `imputed_fields`. |
-| Candidate votes | `data/candidates.parquet` | parquet | One row per candidate-vote. |
-| Page metadata | `data/pages.parquet` | parquet | One row per scanned page. |
-| Official results | `data/official.parquet` | parquet | Government ground truth; join key `(station_number, subdistrict, ballot_type)`. |
-| Party palette | `party_colors.json` | json | `{ "เพื่อไทย": "#…", … }` — used project-wide. |
-| QA report | `reports/data_quality_report.csv` | csv | Per-record QA + failure-mode flags. |
-| Spot-check queue | `reports/spotcheck_queue.csv` | csv | Records with `count_tier=C` or ≥3 failure modes. |
-| Accuracy report | `reports/accuracy_report.csv` | csv | Per-record OCR vs official field-level errors + QA calibration flags. |
-
-**Tooling:** pandas, plotly, streamlit. Keep numpy/pandas idioms simple — other teammates will read this.
-
----
-
-## 6. Working conventions
-
-- **Paths.** All notebooks/scripts read from `./data/OCR_OUTPUT_JSON/` and `./*.csv`. Don't hard-code absolute paths.
-- **Encoding.** All Thai strings are UTF-8. When writing CSVs use `utf-8-sig` so Excel opens them cleanly.
-- **Validity gates.** Before computing aggregates, document which rows you dropped and why. Never silently exclude.
-- **Color palette.** Whenever a chart shows parties, import the shared palette — never invent ad-hoc colors per notebook.
+**CSV encoding:** `utf-8-sig` (BOM) so Excel opens Thai strings correctly.

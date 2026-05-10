@@ -349,3 +349,5 @@ if failed:
 else:
     print()
 print()
+
+lib.print_head()

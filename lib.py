@@ -482,7 +482,7 @@ def print_head() -> None:
             print("  [not found]")
             continue
         df = pd.read_parquet(path)
-        print(df.head(3).to_string())
+        print(df.head(10).to_string())
 
 
 # ---------- Entry point ----------
