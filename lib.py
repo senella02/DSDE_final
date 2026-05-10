@@ -525,24 +525,18 @@ _NUMERIC_RECORD_COLS = [
     "valid_votes", "void_ballots", "spoiled_ballots",
 ]
 
+# Hard cap: total eligible voters for นครราชสีมา เขต 5 per official ECT data.
+# No single station can exceed the district total, so anything above is an OCR error.
+_DISTRICT_ELIGIBLE_VOTERS = 133_508
+
 
 def _nullify_outliers(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
-    """
-    Set extreme high outliers to NaN using IQR × 3 upper fence.
-    Catches OCR digit-concatenation errors (e.g. 1,248,403 when typical
-    station counts are in the hundreds). Only upper-tail; low/zero values
-    are valid for small stations and are not touched.
-    """
+    """Null out any value exceeding the district-wide eligible voter count (OCR error guard)."""
     out = df.copy()
     for col in cols:
         if col not in out.columns:
             continue
-        s = out[col].dropna()
-        if s.empty:
-            continue
-        q1, q3 = s.quantile(0.25), s.quantile(0.75)
-        upper = q3 + 3.0 * (q3 - q1)
-        mask = out[col] > upper
+        mask = out[col] > _DISTRICT_ELIGIBLE_VOTERS
         if mask.any():
             out.loc[mask, col] = pd.NA
     return out
