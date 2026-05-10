@@ -1,15 +1,4 @@
-"""
-anomaly/tab.py — Streamlit tab renderer for the Anomaly Detection section.
 
-Contract: one public render(records, candidates, pages, official) function.
-No module-level st calls.
-
-Sections:
-  A — Summary metric cards
-  B — Flag frequency bar chart + dominant-party chart (lib.color())
-  C — Scatter plot (turnout vs void, red = anomalous) + cluster view
-  D — Styled detail table + download
-"""
 from __future__ import annotations
 
 from pathlib import Path
@@ -61,9 +50,9 @@ _DISPLAY_COLS = (
 )
 
 
-# ---------------------------------------------------------------------------
+
 # Cached detection — keyed on threshold scalars so DataFrames are not the key
-# ---------------------------------------------------------------------------
+
 
 @st.cache_data(show_spinner="Running anomaly detection…")
 def _get_flags(
@@ -84,9 +73,9 @@ def _get_flags(
     return run_all(records, candidates, thresholds)
 
 
-# ---------------------------------------------------------------------------
+
 # Public entry point
-# ---------------------------------------------------------------------------
+
 
 def render(
     records: pd.DataFrame,
@@ -96,9 +85,9 @@ def render(
 ) -> None:
     st.header("Anomaly Detection")
 
-    # -----------------------------------------------------------------------
+
     # In-tab settings (expander keeps controls scoped to this tab only)
-    # -----------------------------------------------------------------------
+
     with st.expander("Settings", expanded=False):
         c1, c2, c3, c4, c5 = st.columns(5)
         method = c1.radio(
@@ -136,9 +125,9 @@ def render(
     flag_counts = flags[_FLAG_COLS].sum().sort_values(ascending=False)
     top_flag = _FLAG_LABEL.get(str(flag_counts.idxmax()), flag_counts.idxmax()) if n_anomalous > 0 else "—"
 
-    # -----------------------------------------------------------------------
+
     # Section A — Metric cards
-    # -----------------------------------------------------------------------
+
     st.subheader("Summary")
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Anomalous records", n_anomalous, f"{n_anomalous/n_total:.1%} of all")
@@ -149,9 +138,9 @@ def render(
 
     st.divider()
 
-    # -----------------------------------------------------------------------
+
     # Data tier explanation
-    # -----------------------------------------------------------------------
+
     st.subheader("Data quality tiers")
     ta, tb, tc = st.columns(3)
     with ta:
@@ -177,9 +166,9 @@ def render(
 
     st.divider()
 
-    # -----------------------------------------------------------------------
+
     # Section B — Flag frequency + dominant-party breakdown
-    # -----------------------------------------------------------------------
+
     st.subheader("Flag frequency")
 
     _FREQ_EXCLUDE = {
@@ -211,9 +200,9 @@ def render(
 
     st.divider()
 
-    # -----------------------------------------------------------------------
+
     # Section C — Scatter plot
-    # -----------------------------------------------------------------------
+
     st.subheader("Turnout vs void rate scatter")
 
     # clean_subset produces the standard gate caption for the chart title
@@ -349,9 +338,9 @@ def render(
     )
     st.plotly_chart(fig_scatter, use_container_width=True)
 
-    # -----------------------------------------------------------------------
+
     # Station cluster view
-    # -----------------------------------------------------------------------
+
     st.subheader("Station clusters")
 
     cluster_plot = scatter_df.merge(

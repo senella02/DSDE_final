@@ -1,12 +1,3 @@
-"""
-Tab 4 — Geospatial Analysis (instruction.txt: คนที่ 2 - เปรม)
-- Choropleth turnout by subdistrict
-- Winner markers per subdistrict
-- Area type analysis (agricultural / tourist / industrial)
-- Policy vs vote analysis
-- Export map_data.geojson
-"""
-
 import json
 from pathlib import Path
 
@@ -31,12 +22,9 @@ try:
 except ImportError:
     HAS_FUZZY = False
 
-# ── Constants ─────────────────────────────────────────────────────────────────
 
-# Path to tha_admin3.geojson (in parent dir of DSDE_final/)
 _GEOJSON_PATH = _HERE / "data/tha_admin3.geojson"
 
-# Constituency 5 districts (without อำเภอ prefix — GeoJSON field names)
 _C5_DISTRICTS = {"โนนสูง", "พิมาย", "เฉลิมพระเกียรติ"}
 
 # Economic classification
@@ -51,9 +39,6 @@ AREA_DESCRIPTIONS = {
     "tourist/historical": "ท่องเที่ยว / ประวัติศาสตร์ — อุทยานประวัติศาสตร์พิมาย (ปราสาทขอม)",
     "other": "ไม่ระบุ",
 }
-
-
-# ── GeoJSON helpers ───────────────────────────────────────────────────────────
 
 
 def _strip_prefix(name: str, prefix: str) -> str:
@@ -93,9 +78,6 @@ def _fuzzy_match(name: str, candidates: list[str]) -> str:
         result = fuzz_process.extractOne(name, candidates, score_cutoff=55)
         return result[0] if result else name
     return name
-
-
-# ── Data preparation ──────────────────────────────────────────────────────────
 
 
 def _subdistrict_stats(records: pd.DataFrame, candidates: pd.DataFrame) -> pd.DataFrame:
@@ -169,8 +151,6 @@ def _subdistrict_stats(records: pd.DataFrame, candidates: pd.DataFrame) -> pd.Da
     )
     return agg
 
-
-# ── Map builders ──────────────────────────────────────────────────────────────
 
 
 def _build_choropleth_map(
@@ -348,8 +328,6 @@ def _add_winner_markers(
     return m
 
 
-# ── GeoJSON export ────────────────────────────────────────────────────────────
-
 
 def _export_map_data(sub_stats: pd.DataFrame, features: list[dict]) -> str:
     """Build map_data.geojson with election stats + geometry."""
@@ -395,8 +373,7 @@ def _export_map_data(sub_stats: pd.DataFrame, features: list[dict]) -> str:
     )
 
 
-# ── Main render ───────────────────────────────────────────────────────────────
-
+#main
 
 def render(
     records: pd.DataFrame,
@@ -413,7 +390,7 @@ def render(
     sub_stats = _subdistrict_stats(records, candidates)
     features = _load_c5_features()
 
-    # ── Map section ───────────────────────────────────────────────
+
     st.markdown("### แผนที่")
 
     if not HAS_GEO:
@@ -439,7 +416,7 @@ def render(
             st_folium(_make_map("partylist"), height=480, use_container_width=True, key="map_partylist")
         st.caption("จุดสี = พรรคที่ชนะในแต่ละตำบล (Tier A)")
 
-    # ── Turnout bar chart (always shown) ─────────────────────────
+
     st.markdown("### อัตราผู้ใช้สิทธิ์แยกตามตำบล")
     turnout_sorted = sub_stats.dropna(subset=["turnout_rate"]).sort_values(
         "turnout_rate", ascending=False
@@ -463,7 +440,7 @@ def render(
 
     st.divider()
 
-    # ── Winner per subdistrict table ──────────────────────────────
+
     st.markdown("### ผู้ชนะต่อตำบล (Tier A)")
     col_d, col_pl = st.columns(2)
 
@@ -485,7 +462,6 @@ def render(
 
     st.divider()
 
-    # ── Area-type analysis ────────────────────────────────────────
     st.markdown("### การวิเคราะห์แยกตามประเภทพื้นที่")
 
     st.info(
@@ -516,7 +492,6 @@ def render(
     )
     st.plotly_chart(fig_area, width="stretch")
 
-    # Winner party distribution by area type — district and partylist side-by-side
     aw_base = sub_stats[sub_stats["area_type"] != "other"].copy()
     col_aw1, col_aw2 = st.columns(2)
 
@@ -541,7 +516,6 @@ def render(
     _winner_area_chart(col_aw1, "winner_party", "ส.ส.เขต — พรรคที่ชนะแยกตามพื้นที่")
     _winner_area_chart(col_aw2, "pl_winner_party", "บัญชีรายชื่อ — พรรคที่ชนะแยกตามพื้นที่")
 
-    # Party votes by area type — district and partylist shown side-by-side
     def _area_party_chart(ballot_type: str, cap_label: str) -> None:
         sub_cand, cap = clean_subset(
             candidates[candidates["ballot_type"] == ballot_type],
@@ -587,22 +561,3 @@ def render(
 # |---|---|---|---|---|
 # | เกษตรกรรม | โนนสูง, เฉลิมพระเกียรติ | ราคาสินค้าเกษตร, ประกันรายได้ชาวนา, สวัสดิการรัฐ | เพื่อไทย / ภูมิใจไทย | เกษตรกรตอบสนองต่อนโยบายอุดหนุนโดยตรง |
 # | ท่องเที่ยว/ประวัติศาสตร์ | พิมาย | โครงสร้างพื้นฐานท่องเที่ยว, อนุรักษ์มรดกวัฒนธรรม | หลากหลาย | รายได้จากท่องเที่ยว — คะแนนกระจายมากกว่า |
-
-# *การวิเคราะห์นี้ใช้ข้อมูล OCR ที่ผ่าน Tier A เท่านั้น ให้ระมัดระวังในการตีความ*
-# """)
-
-    # ── Export map_data.geojson ───────────────────────────────────
-    # st.divider()
-    # st.markdown("### Export")
-    # geojson_str = _export_map_data(sub_stats, features)
-    # col1, col2 = st.columns(2)
-    # col1.download_button(
-    #     "⬇️ ดาวน์โหลด map_data.geojson",
-    #     data=geojson_str,
-    #     file_name="map_data.geojson",
-    #     mime="application/json",
-    # )
-    # if col2.button("💾 บันทึก map_data.geojson ลงไฟล์"):
-    #     out_path = _HERE / "reports" / "map_data.geojson"
-    #     out_path.write_text(geojson_str, encoding="utf-8")
-    #     col2.success(f"บันทึกแล้วที่ {out_path}")

@@ -1,9 +1,3 @@
-"""
-Data Quality tab — three sections:
-  A: Failure mode analysis (frequency, null rates, co-occurrence, clustering)
-  B: OCR accuracy vs official government results (aggregate + candidate level)
-  C: Spot-check queue with CSV downloads
-"""
 
 import streamlit as st
 import pandas as pd
@@ -17,9 +11,9 @@ _HEADER_FIELDS = [
 ]
 _BALLOT_FIELDS = ["valid_votes", "void_ballots", "spoiled_ballots", "total_ballots"]
 
-# Minimum fraction of contributing records that must be tier-A for a candidate to "pass QA"
+
 _QA_PASS_THRESHOLD = 0.5
-# Absolute vote-count error considered "matches official"
+
 _MATCH_THRESHOLD = 50
 
 
@@ -62,7 +56,7 @@ def render(
 ) -> None:
     st.header("Data Quality")
 
-    # ── Section A: Failure mode analysis ──────────────────────────────────
+
     st.subheader("A — Failure Mode Analysis")
 
     # A0 — Good vs defect summary
@@ -159,7 +153,7 @@ def render(
     all_modes_flat = [m for lst in modes_lists for m in lst]
     unique_modes = sorted(set(all_modes_flat))
 
-    # A1 — frequency bar (all records, sorted descending)
+
     mode_counts = (
         pd.Series(all_modes_flat)
         .value_counts()
@@ -185,7 +179,6 @@ def render(
     fig_a1.update_traces(textposition="outside")
     st.plotly_chart(fig_a1, width='stretch')
 
-    # A2 — null rate per header field (horizontal bar, sorted by count)
     null_df = (
         records[_HEADER_FIELDS].isnull().sum()
         .sort_values(ascending=False)
@@ -212,7 +205,7 @@ def render(
 
     col_a3, col_a4 = st.columns(2)
 
-    # A3 — failures-per-record histogram
+
     with col_a3:
         fig_a3 = px.histogram(
             records, x="failure_mode_count",
@@ -223,7 +216,6 @@ def render(
         fig_a3.update_layout(bargap=0.15)
         st.plotly_chart(fig_a3, width='stretch')
 
-    # A4 — co-occurrence heatmap
     with col_a4:
         if len(unique_modes) >= 2:
             cooccur = pd.DataFrame(0, index=unique_modes, columns=unique_modes, dtype=int)
@@ -244,7 +236,7 @@ def render(
         else:
             st.info("Too few distinct failure modes for co-occurrence heatmap.")
 
-    # Clustering table — do failures concentrate by ballot type / election type?
+
     st.markdown(
         "**Failure clustering by ballot type and election type.** "
         "Systematic concentration → physical scanning or printing issue, not random OCR noise."
@@ -261,7 +253,6 @@ def render(
     )
     st.dataframe(cluster, width='stretch', hide_index=True)
 
-    # Subdistrict error rate analysis (normal records only — advance records have null subdistrict)
     st.markdown("**Error Rate % by Subdistrict** — normal records only; advance records carry no subdistrict.")
     sub_sd = records[records["subdistrict"].notna()].copy()
     if not sub_sd.empty:
@@ -308,7 +299,7 @@ def render(
 
     st.divider()
 
-    # ── Section B: OCR accuracy vs official ───────────────────────────────
+
     st.subheader("B — OCR Accuracy vs Official Government Results")
     st.caption(
         "Official results are constituency-level totals. "
@@ -317,7 +308,7 @@ def render(
         "A large shift between subsets means OCR failures are non-random."
     )
 
-    # ── B1: Aggregate ballot-field comparison per ballot type ──────────────
+
     all_records, _ = clean_subset(records)
     ab_records, cap_ab = clean_subset(records, count_tier="AB")
     a_records, cap_a = clean_subset(records, count_tier="A")
@@ -364,10 +355,10 @@ def render(
         )
         st.plotly_chart(fig_cmp, width='stretch')
 
-    # ── B2: Candidate-level comparison ─────────────────────────────────────
+
     st.write("**Per-Candidate Vote Error (OCR aggregate vs Official)**")
 
-    # Sum OCR candidate votes across all contributing records (exclude withdrawn)
+
     cand_ocr = (
         candidates[candidates["votes"].notna() & (candidates["withdrawn"].fillna(False) == False)]
         .groupby(["ballot_type", "number"])["votes"]
@@ -387,7 +378,7 @@ def render(
 
     col_b1, col_b2 = st.columns(2)
 
-    # Box plot: relative error by ballot_type
+
     with col_b1:
         fig_b1 = px.box(
             cand_merged, x="ballot_type", y="rel_error_pct",
@@ -401,7 +392,7 @@ def render(
         )
         st.plotly_chart(fig_b1, width='stretch')
 
-    # Error magnitude buckets
+
     with col_b2:
         buckets = pd.cut(
             cand_merged["abs_error"],
@@ -431,14 +422,14 @@ def render(
         fig_b2.update_traces(textposition="outside")
         st.plotly_chart(fig_b2, width='stretch')
 
-    # ── B3: QA calibration 2×2 ─────────────────────────────────────────────
+
     st.write(
         f"**QA Flag Calibration** — "
         f"passes QA = majority of contributing OCR records are tier A; "
         f"matches official = |error| ≤ {_MATCH_THRESHOLD} votes."
     )
 
-    # Fraction of tier-A records per (ballot_type, candidate number)
+
     cand_tiers = (
         candidates[candidates["withdrawn"].fillna(False) == False]
         .groupby(["ballot_type", "number"])["count_tier"]
@@ -491,7 +482,6 @@ def render(
     )
     st.plotly_chart(fig_b3, width='stretch')
 
-    # ── B4: OCR latency by page role ───────────────────────────────────────
     sub_pages, cap_pages = clean_subset(pages, requires=["page_role", "ocr_latency_sec"])
     fig_b4 = px.box(
         sub_pages, x="page_role", y="ocr_latency_sec",
@@ -515,7 +505,6 @@ def render(
 
     st.divider()
 
-    # ── Section C: Spot-check queue ────────────────────────────────────────
     st.subheader("C — Spot-Check Queue")
 
     spotcheck = (

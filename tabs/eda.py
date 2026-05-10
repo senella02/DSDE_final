@@ -1,17 +1,9 @@
-"""
-EDA tab — two sections:
-  A: Distributions (full vs valid-only side-by-side, highlighting OCR bias)
-  B: Rankings (top/bottom stations, top candidates, party leaderboard)
-"""
 
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 
 from lib import clean_subset, color
-
-
-# ── helpers ────────────────────────────────────────────────────────────────
 
 
 def _cand_base(candidates: pd.DataFrame, ballot_type: str) -> pd.DataFrame:
@@ -52,7 +44,6 @@ def render(
 ) -> None:
     st.header("Exploratory Data Analysis")
 
-    # ── Section A: Distributions ──────────────────────────────────────────
     st.subheader("A — Distributions")
     st.caption(
         "Each metric shown **side-by-side**: all records with that field (left) vs "
@@ -60,7 +51,6 @@ def render(
         "and bias the result — that difference is itself a finding."
     )
 
-    # A1 — Turnout rate
     st.markdown("**Turnout Rate**")
     col_l, col_r = st.columns(2)
     full_t, cap_full_t = clean_subset(records, requires=["turnout_rate"])
@@ -107,7 +97,6 @@ def render(
         )
         st.plotly_chart(fig, use_container_width=True)
 
-    # A3 — Spoil rate
     st.markdown("**Spoil Rate (งดออกเสียง / total)**")
     col_l, col_r = st.columns(2)
     full_s, cap_full_s = clean_subset(records, requires=["spoil_rate"])
@@ -131,7 +120,6 @@ def render(
         )
         st.plotly_chart(fig, use_container_width=True)
 
-    # A4 — District vote share by party
     st.markdown("**District Vote Share by Party**")
     dist_base = _cand_base(candidates, "district")
     full_d, cap_full_d = clean_subset(dist_base)
@@ -142,7 +130,6 @@ def render(
     with col_r:
         _party_bar(valid_d, cap_valid_d, "District Vote Share — Tier A Only")
 
-    # A5 — Partylist vote share by party
     st.markdown("**Partylist Vote Share by Party**")
     pl_base = _cand_base(candidates, "partylist")
     full_p, cap_full_p = clean_subset(pl_base)
@@ -153,7 +140,6 @@ def render(
     with col_r:
         _party_bar(valid_p, cap_valid_p, "Partylist Vote Share — Tier A Only")
 
-    # A6 — Turnout vs void scatter colored by count_tier
     scat_sub, scat_cap = clean_subset(records, requires=["turnout_rate", "void_rate"])
     tier_colors = {"A": "#2ecc71", "B": "#f39c12", "C": "#e74c3c"}
     fig_scat = px.scatter(
@@ -171,7 +157,6 @@ def render(
 
     st.divider()
 
-    # ── Section B: Rankings ───────────────────────────────────────────────
     st.subheader("B — Rankings")
     st.caption(
         "All ranking tables include `count_tier`, `meta_tier`, and `imputed_fields` "
@@ -184,7 +169,7 @@ def render(
         "count_tier", "meta_tier", "imputed_fields", "failure_mode_count",
     ]
 
-    # B1 — Top/bottom 15 stations by void rate
+
     st.markdown("**Top & Bottom 15 Stations by Void Rate (Tier A+B, M0)**")
     void_sub, void_cap = clean_subset(
         records,
@@ -206,7 +191,6 @@ def render(
     else:
         st.info("Too few valid M0 records to rank stations by void rate.")
 
-    # B2 — Top/bottom 15 stations by turnout rate
     st.markdown("**Top & Bottom 15 Stations by Turnout Rate (Tier A+B, M0)**")
     turn_sub, turn_cap = clean_subset(
         records,
@@ -228,7 +212,6 @@ def render(
     else:
         st.info("Too few valid M0 records to rank stations by turnout rate.")
 
-    # B3 — Top 10 candidates by votes (district, Tier A)
     st.markdown("**Top 10 District Candidates by Votes (Tier A)**")
     dist_a, cap_dist_a = clean_subset(_cand_base(candidates, "district"), count_tier="A")
     top_cands = (
@@ -258,7 +241,6 @@ def render(
     cand_table.columns = ["Rank", "#", "Name", "Party", "Votes (Tier A)"]
     st.dataframe(cand_table, use_container_width=True, hide_index=True)
 
-    # B4 — Party leaderboard (partylist, Tier A)
     st.markdown("**Party Leaderboard — Partylist (Tier A)**")
     pl_a, cap_pl_a = clean_subset(_cand_base(candidates, "partylist"), count_tier="A")
     party_board = (

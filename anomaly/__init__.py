@@ -1,9 +1,4 @@
-"""
-anomaly/__init__.py — public API for the anomaly detection module.
 
-run_all()    — run all rule + stat checks; write CSVs; return DataFrames.
-load_flags() — read cached anomaly_flags.csv (calls run_all if missing).
-"""
 from __future__ import annotations
 
 from pathlib import Path

@@ -1,16 +1,4 @@
-"""
-anomaly/cluster.py — KMeans pattern discovery.
 
-Groups polling stations into behavioural clusters using four features:
-    turnout_rate, void_rate, spoil_rate, dominant_party_share
-
-Only count_tier=A / meta_tier=M0 records with all four features present are
-used for fitting.  All other records receive cluster_label=NaN.
-
-Results are written to reports/cluster_labels.csv and returned as a DataFrame.
-
-Note: clustering output is exploratory — not a definitive anomaly label.
-"""
 from __future__ import annotations
 
 from pathlib import Path

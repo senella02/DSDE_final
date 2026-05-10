@@ -1,10 +1,4 @@
-"""
-anomaly/stats.py — statistical outlier detection.
 
-All baselines are computed on count_tier=A records only, then applied to the
-full dataset.  This prevents OCR-corrupted values from distorting the mean/std
-and masking genuine electoral anomalies.
-"""
 from __future__ import annotations
 
 import pandas as pd

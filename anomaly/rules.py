@@ -1,26 +1,10 @@
-"""
-anomaly/rules.py — deterministic rule-based anomaly checks.
 
-Each public function takes records (and optionally candidates) and returns a
-boolean pd.Series aligned to records.index (True = anomalous).
-
-All checks are null-safe: missing values never raise, they produce False.
-"""
 from __future__ import annotations
 
 import pandas as pd
 
-
-# ---------------------------------------------------------------------------
-# Internal helper
-# ---------------------------------------------------------------------------
-
 def _join_to_records(records: pd.DataFrame, flag_df: pd.DataFrame) -> pd.Series:
-    """
-    Merge a (file_id, ballot_type, flag:bool) frame back onto records by
-    original index position.  Handles the edge case where one PDF produces
-    more than two records (duplicate file_id+ballot_type pairs).
-    """
+
     key = records[["file_id", "ballot_type"]].copy()
     key["_idx"] = records.index
     merged = key.merge(flag_df[["file_id", "ballot_type", "flag"]],
@@ -32,9 +16,9 @@ def _join_to_records(records: pd.DataFrame, flag_df: pd.DataFrame) -> pd.Series:
     return (merged.set_index("_idx")["flag"].reindex(records.index) == True)  # noqa: E712
 
 
-# ---------------------------------------------------------------------------
+
 # Ballot arithmetic rules
-# ---------------------------------------------------------------------------
+
 
 def rule_perfect_turnout(records: pd.DataFrame) -> pd.Series:
     """turnout_rate == 1.0 exactly (100% — near-impossible in practice)."""
@@ -49,9 +33,8 @@ def rule_zero_total_ballots(records: pd.DataFrame) -> pd.Series:
     return (tb.notna() & (tb == 0) & ev.notna() & (ev > 0))
 
 
-# ---------------------------------------------------------------------------
+
 # Rate-based rules
-# ---------------------------------------------------------------------------
 
 def rule_high_void_rate(records: pd.DataFrame, threshold: float = 0.10) -> pd.Series:
     """void_rate exceeds threshold (default 10%)."""
@@ -74,9 +57,9 @@ def rule_negative_rate(records: pd.DataFrame) -> pd.Series:
     return flag
 
 
-# ---------------------------------------------------------------------------
+
 # Candidate-level rules  (require count_tier=A candidates)
-# ---------------------------------------------------------------------------
+
 
 def rule_all_zero_votes(
     records: pd.DataFrame, candidates: pd.DataFrame
@@ -108,10 +91,7 @@ def rule_single_candidate_sweep(
     candidates: pd.DataFrame,
     threshold: float = 0.95,
 ) -> pd.Series:
-    """
-    One candidate holds >= threshold share of valid votes while at least one
-    other candidate also has votes > 0.  Evaluated on count_tier=A only.
-    """
+
     active = candidates[
         (candidates["count_tier"] == "A")
         & ~candidates["withdrawn"]
