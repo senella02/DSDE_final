@@ -5,7 +5,6 @@ Streamlit app over OCR'd Thai election ballot forms (District 5, Nakhon Ratchasi
 ## Quick start
 
 ```bash
-conda activate dsde
 streamlit run app.py
 ```
 
